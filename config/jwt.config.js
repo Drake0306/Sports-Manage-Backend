@@ -1,6 +1,5 @@
-require('dotenv').config();
+const secret = process.env.JWT_SECRET || 'default_secret_key';
 
 module.exports = {
-  secret: process.env.JWT_SECRET,
-  expiresIn: '1h'
+  secret
 };

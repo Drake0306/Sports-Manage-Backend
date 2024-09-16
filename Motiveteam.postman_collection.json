@@ -1,0 +1,92 @@
+{
+	"info": {
+		"_postman_id": "571aa959-21ab-46c6-80fa-ebafdc7deaf0",
+		"name": "Motiveteam",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "user_register",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "user_profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ1c2VyQHlvcG1haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MjY1MDA0NDAsImV4cCI6MTcyNjUwNDA0MH0.W7gc76R5WhyM5oV-0ojY2m-RzaO5jAxWnzOqonTSxlg",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/user/profile",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Parent",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiZW1haWwiOiJwYXJlbnRAeW9wbWFpbC5jb20iLCJyb2xlIjoicGFyZW50IiwiaWF0IjoxNzI2NTAwODk1LCJleHAiOjE3MjY1MDQ0OTV9.uril7qbTcaKfnhVZIz-5Kt04SzFGi_T5giSRYTYN7og",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/parent/data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"parent",
+								"data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
