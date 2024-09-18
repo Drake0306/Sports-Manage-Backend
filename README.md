@@ -19,7 +19,7 @@ Follow these steps to set up and run the backend application locally.
 
 ## Configure the Database
 
-** Edit config/config.json with your database details:
+** Edit config/config.json and .env  with your database details:
 
     {
     "development": {
