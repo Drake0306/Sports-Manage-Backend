@@ -18,11 +18,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      username: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false
-      },
       firstname: {
         type: Sequelize.STRING,
         allowNull: true
@@ -35,10 +30,18 @@ module.exports = {
         type: Sequelize.ENUM('coach', 'parent', 'user', 'admin'),
         allowNull: false
       },
+      contactNumber: { // New field for contact number
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      dateOfBirth: { // New field for date of birth
+        type: Sequelize.DATE,
+        allowNull: true
+      },
       status: {
         type: Sequelize.ENUM('active', 'inactive', 'suspended'),
         allowNull: false,
-        defaultValue: 'active'  // Default value set to 'active'
+        defaultValue: 'active' // Default value set to 'active'
       },
       createdAt: {
         allowNull: false,

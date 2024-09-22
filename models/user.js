@@ -9,43 +9,53 @@ module.exports = (sequelize, DataTypes) => {
   }
   
   User.init({
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    firstname: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    lastname: {
-      type: DataTypes.STRING,
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
       allowNull: false
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: {
+        isEmail: true // Validates email format
+      }
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    role: {
+    firstname: {
       type: DataTypes.STRING,
-      allowNull: false,
-      // validate: {
-      //   isIn: [['user', 'coach', 'parent', 'admin']]
-      // }
+      allowNull: true
+    },
+    lastname: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    role: {
+      type: DataTypes.ENUM('coach', 'parent', 'user', 'admin'),
+      allowNull: false
+    },
+    contactNumber: {
+      type: DataTypes.STRING,
+      allowNull: false // New field for contact number
+    },
+    dateOfBirth: {
+      type: DataTypes.DATE,
+      allowNull: true // New field for date of birth
     },
     status: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('active', 'inactive', 'suspended'),
       allowNull: false,
-      defaultValue: 'active'
+      defaultValue: 'active' // Default value set to 'active'
     }
   }, {
     sequelize,
     modelName: 'User',
+    timestamps: true // Enable createdAt and updatedAt fields
   });
 
   return User;
