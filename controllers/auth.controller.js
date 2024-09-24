@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
+const Twilio = require('twilio');
+require('dotenv').config();
+  const { User } = require('../models');
 const { secret } = require('../config/jwt.config');
+const twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const saltRounds = 10;
 
@@ -33,6 +36,42 @@ const login = async (req, res) => {
   }
 };
 
+
+let otpStore = {}; // Temporary storage for OTPs
+
+const sendOtp = async (req, res) => {
+    
+    const { contactNumber } = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
+
+    try {
+        await twilioClient.messages.create({
+            body: `Your OTP code is ${otp}`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: contactNumber,
+        });
+
+        otpStore[contactNumber] = otp; // Store OTP
+        return res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Failed to send OTP.' });
+    }
+
+}
+
+
+const verifyOtp = async (req, res) => {
+    
+  const { contactNumber, otp } = req.body;
+
+    if (otpStore[contactNumber] === otp) {
+        delete otpStore[contactNumber]; // Clear the OTP after verification
+        return res.json({ success: true });
+    } else {
+        return res.json({ success: false, message: 'Invalid OTP.' });
+    }
+}
 
 
 
@@ -93,5 +132,7 @@ console.log(req.body);
 
 module.exports = {
   login,
-  register
+  register,
+  sendOtp,
+  verifyOtp
 };
