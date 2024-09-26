@@ -11,16 +11,105 @@
 				{
 					"name": "user_register",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"username\": \"parentuser\", \"firstname\": \"John\", \"lastname\": \"Doe\", \"email\": \"sdfaaasdfsd@yopmail.com\", \"password\": \"parent@123\", \"role\": \"parent\", \"status\": \"active\"}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "login",
 					"request": {
-						"method": "GET",
-						"header": []
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"sohan@yopmail.com\",\r\n  \"password\": \"Demo@123\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "http://localhost:4000/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SendOtp",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n\"contactNumber\":\"+918755013890\"\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://192.168.114.196:4000/auth/send-otp",
+							"protocol": "http",
+							"host": [
+								"192",
+								"168",
+								"114",
+								"196"
+							],
+							"port": "4000",
+							"path": [
+								"auth",
+								"send-otp"
+							],
+							"query": [
+								{
+									"key": "contactNumber",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
 					},
 					"response": []
 				}
@@ -50,6 +139,44 @@
 							"path": [
 								"user",
 								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifyOtp",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ1c2VyQHlvcG1haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MjY1MDA0NDAsImV4cCI6MTcyNjUwNDA0MH0.W7gc76R5WhyM5oV-0ojY2m-RzaO5jAxWnzOqonTSxlg",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n\"contactNumber\":\"+918755013890\",\"otp\":\"208219\"\r\n\r\n}"
+						},
+						"url": {
+							"raw": "http://192.168.114.196:4000/user/verify-otp",
+							"protocol": "http",
+							"host": [
+								"192",
+								"168",
+								"114",
+								"196"
+							],
+							"port": "4000",
+							"path": [
+								"user",
+								"verify-otp"
 							]
 						}
 					},

@@ -61,27 +61,49 @@ const sendOtp = async (req, res) => {
 }
 
 
+
+
+
+
+
+
 const verifyOtp = async (req, res) => {
-    
-  const { contactNumber, otp } = req.body;
+  const { contactNumber,otp } = req.body;
+  const userEmail = req.user.email; // Extract email from the authenticated user in the JWT
 
-    if (otpStore[contactNumber] === otp) {
-        delete otpStore[contactNumber]; // Clear the OTP after verification
-        return res.json({ success: true });
-    } else {
-        return res.json({ success: false, message: 'Invalid OTP.' });
+  if (otpStore[contactNumber] === otp) {
+    delete otpStore[contactNumber]; // Clear the OTP after verification
+
+
+    try {
+      // Update the user's isVerify status in the database using the email
+      const [updated] = await User.update(
+        { isVerify: 1 }, // Set isVerify to 1
+        { where: { email: userEmail } } // Use the email from the JWT
+      );
+
+      if (updated) {
+        return res.json({ success: true, message: 'OTP verified' });
+      } 
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ success: false, message: 'Server error.' });
     }
-}
 
-
+    
+  } else {
+    return res.json({ success: false, message: 'Invalid OTP.' });
+  }
+};
 
 
 
 
 
 const register = async (req, res) => {
-  const { firstname, lastname, email, password, role, contactNumber, dateOfBirth,status } = req.body;
+  const { firstname, lastname, email, password, role, contactNumber, dateOfBirth,status,socialLogin } = req.body;
 console.log(req.body);
+  // console.log(req.body);
   let errors = [];
 
   if (!firstname) errors.push('Firstname is required');
@@ -113,7 +135,8 @@ console.log(req.body);
       role,
       contactNumber,
       dateOfBirth,
-      status
+      status,
+      socialLogin
     });
 
     const token = jwt.sign(

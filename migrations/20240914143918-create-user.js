@@ -30,13 +30,23 @@ module.exports = {
         type: Sequelize.ENUM('coach', 'parent', 'user', 'admin'),
         allowNull: false
       },
-      contactNumber: { // New field for contact number
+      contactNumber: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      dateOfBirth: { // New field for date of birth
+      dateOfBirth: {
         type: Sequelize.DATE,
         allowNull: true
+      },
+      isVerify: { // New field for verification status
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0 // Default value set to 0
+      },
+      socialLogin: { // New field for social login status
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0 // Default value set to 0
       },
       status: {
         type: Sequelize.ENUM('active', 'inactive', 'suspended'),
@@ -58,3 +68,4 @@ module.exports = {
     await queryInterface.dropTable('Users');
   }
 };
+``

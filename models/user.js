@@ -4,7 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // define association here
+      // Define associations here if needed
     }
   }
   
@@ -41,11 +41,21 @@ module.exports = (sequelize, DataTypes) => {
     },
     contactNumber: {
       type: DataTypes.STRING,
-      allowNull: false // New field for contact number
+      allowNull: false
     },
     dateOfBirth: {
       type: DataTypes.DATE,
-      allowNull: true // New field for date of birth
+      allowNull: true
+    },
+    isVerify: { // New field for verification status
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0 // Default value set to 0
+    },
+    socialLogin: { // New field for social login status
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0 // Default value set to 0
     },
     status: {
       type: DataTypes.ENUM('active', 'inactive', 'suspended'),
