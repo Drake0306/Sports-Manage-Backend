@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config/jwt.config');
 
+const blacklist = new Set(); // Initialize your blacklist
+
 // Middleware to authenticate JWT token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -8,6 +10,11 @@ const authenticateToken = (req, res, next) => {
 
   if (token == null) {
     return res.status(401).json({ error: 'Token is required' }); // Token is missing
+  }
+
+  // Check if the token is blacklisted
+  if (isBlacklisted(token)) {
+    return res.status(403).json({ error: 'Token is invalidated' }); // Token is blacklisted
   }
 
   jwt.verify(token, secret, (err, user) => {
@@ -36,7 +43,18 @@ const authorizeRole = (...allowedRoles) => {
   };
 };
 
+const addToBlacklist = (token) => {
+  blacklist.add(token);
+};
+
+// Function to check if token is blacklisted
+const isBlacklisted = (token) => {
+  return blacklist.has(token);
+};
+// Export the middleware and blacklist functions
 module.exports = {
   authenticateToken,
-  authorizeRole
+  authorizeRole,
+  addToBlacklist, // Function to add token to blacklist
+  isBlacklisted // Function to check if token is blacklisted
 };

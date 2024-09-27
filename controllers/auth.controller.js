@@ -6,6 +6,10 @@ require('dotenv').config();
 const { secret } = require('../config/jwt.config');
 const twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+const { addToBlacklist } = require('../middleware/auth.middleware'); // Import the addToBlacklist function
+
+
+
 const saltRounds = 10;
 
 const login = async (req, res) => {
@@ -45,6 +49,19 @@ const login = async (req, res) => {
     console.error(error); // Log the error for debugging
     res.status(500).json({ error: true, message: 'Server error' });
   }
+};
+
+const logout = async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
+
+  if (token) {
+    // Add the token to the blacklist
+    addToBlacklist(token);
+
+    return res.status(200).json({ error: false, message: 'Logged out successfully' });
+  }
+
+  return res.status(400).json({ error: true, message: 'No token provided' });
 };
 
 
@@ -161,5 +178,6 @@ module.exports = {
   login,
   register,
   sendOtp,
+  logout,
   verifyOtp
 };
