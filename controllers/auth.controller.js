@@ -13,12 +13,17 @@ const login = async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({ error: true, message: 'Email and password are required' });
-
   }
 
   try {
     const user = await User.findOne({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      return res.status(401).json({ error: true, message: 'Invalid credentials' });
+    }
+
+    // Check if the user's password matches
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       return res.status(401).json({ error: true, message: 'Invalid credentials' });
     }
 
@@ -28,17 +33,23 @@ const login = async (req, res) => {
       { expiresIn: '1h' }
     );
 
+    // Check if the user is verified
+    if (user.isVerify === 0) {
+      return res.json({ contact:user.contactNumber,error: false, message: 'Verification pending', otp: true, token });
+
+    }
+
     res.json({ error: false, token }); // No error, send the token
 
   } catch (error) {
+    console.error(error); // Log the error for debugging
     res.status(500).json({ error: true, message: 'Server error' });
-
   }
 };
 
 
-let otpStore = {}; // Temporary storage for OTPs
 
+let otpStore = {}; // Temporary storage for OTPs
 const sendOtp = async (req, res) => {
     
     const { contactNumber } = req.body;
@@ -59,11 +70,6 @@ const sendOtp = async (req, res) => {
     }
 
 }
-
-
-
-
-
 
 
 
@@ -95,8 +101,6 @@ const verifyOtp = async (req, res) => {
     return res.json({ success: false, message: 'Invalid OTP.' });
   }
 };
-
-
 
 
 
