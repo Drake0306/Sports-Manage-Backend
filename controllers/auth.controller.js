@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Twilio = require('twilio');
 require('dotenv').config();
-  const { User } = require('../models');
+  const { User, userDetails, Coach, Organization  } = require('../models');
 const { secret } = require('../config/jwt.config');
 const twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
@@ -88,6 +88,30 @@ const sendOtp = async (req, res) => {
 
 }
 
+const organizationWithCoaches = async (req, res) => {
+  console.log('he');
+  try {
+    // Fetch all organizations
+    const organizations = await Organization.findAll({
+      attributes: ['id', 'name', 'status'], // Specify the fields you want to retrieve
+    });
+
+    // Fetch all coaches
+    const coaches = await Coach.findAll({
+      attributes: ['id', 'type', 'status'], // Specify the fields you want to retrieve
+    });
+
+    // Send response with organizations and coaches in separate objects
+    res.status(200).json({
+      error: false,
+      organizations, // List of organizations
+      coaches,       // List of coaches
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: true, message: 'Server error' });
+  }
+};
 
 
 const verifyOtp = async (req, res) => {
@@ -120,20 +144,24 @@ const verifyOtp = async (req, res) => {
 };
 
 
-
 const register = async (req, res) => {
-  const { firstname, lastname, email, password, role, contactNumber, dateOfBirth,status,socialLogin } = req.body;
-console.log(req.body);
-  // console.log(req.body);
+  console.log(req.body)
+  const {
+    username, firstname, lastname, email, password, role, phoneNumber, 
+    dateOfBirth, status, socialLogin, coachType, organization
+  } = req.body;
+  
   let errors = [];
-
+  if (!username) errors.push('Username is required');
   if (!firstname) errors.push('Firstname is required');
   if (!lastname) errors.push('Lastname is required');
   if (!email) errors.push('Email is required');
   if (!password) errors.push('Password is required');
   if (!role) errors.push('Role is required');
+  if (!coachType) errors.push('Coach Type is required');
+  if (!organization) errors.push('Organization is required');
   if (!status) errors.push('Status is required');
-  if (!contactNumber) errors.push('Contact  is required');
+  if (!phoneNumber) errors.push('Contact number is required');
   if (!dateOfBirth) errors.push('Date of Birth is required');
 
   if (errors.length > 0) {
@@ -141,31 +169,45 @@ console.log(req.body);
   }
 
   try {
+    // Check if the user with the provided email already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: true, message: 'User already exists' });
     }
 
+    // Hash the user's password before storing
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Create a new user record in the User table
     const user = await User.create({
+      username,
       firstname,
       lastname,
       email,
       password: hashedPassword,
       role,
-      contactNumber,
+      contactNumber:phoneNumber,
       dateOfBirth,
       status,
       socialLogin
     });
 
+    // After user creation, create an entry in the userDetails table
+    await userDetails.create({
+      userId: user.id,          // user.id from the created user
+      coachTypeId: coachType, // coachTypeId from the request
+      organizationId: organization, // OrganizationId from the request
+      status: 'active'          // Set default status or modify as per need
+    });
+
+    // Generate JWT token for the user
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, username: user.username },
       secret,
       { expiresIn: '1h' }
     );
 
+    // Respond with the generated token
     res.status(201).json({ error: false, token });
   } catch (error) {
     console.error(error);
@@ -178,6 +220,7 @@ module.exports = {
   login,
   register,
   sendOtp,
+  organizationWithCoaches,
   logout,
   verifyOtp
 };

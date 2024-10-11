@@ -9,6 +9,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      username: { // New column for username
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false // Username cannot be null
+      },
       email: {
         type: Sequelize.STRING,
         unique: true,
@@ -38,12 +43,12 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true
       },
-      isVerify: { // New field for verification status
+      isVerify: { 
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0 // Default value set to 0
       },
-      socialLogin: { // New field for social login status
+      socialLogin: { 
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0 // Default value set to 0
@@ -68,4 +73,3 @@ module.exports = {
     await queryInterface.dropTable('Users');
   }
 };
-``
