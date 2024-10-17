@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       allowNull: false
     },
+    username: { // New username field
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true // Ensure that usernames are unique
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -47,20 +52,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true
     },
-    isVerify: { // New field for verification status
+    isVerify: { 
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0 // Default value set to 0
+      defaultValue: 0
     },
-    socialLogin: { // New field for social login status
+    socialLogin: { 
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0 // Default value set to 0
+      defaultValue: 0
     },
     status: {
       type: DataTypes.ENUM('active', 'inactive', 'suspended'),
       allowNull: false,
-      defaultValue: 'active' // Default value set to 'active'
+      defaultValue: 'active'
     }
   }, {
     sequelize,

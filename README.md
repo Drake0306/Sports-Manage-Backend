@@ -31,8 +31,10 @@ Follow these steps to set up and run the backend application locally.
     }
 
 ## Run Migrations
-
   npx sequelize-cli db:migrate
+
+## Run Seeders
+npx sequelize db:seed:all
 
 ## Start the Application
 

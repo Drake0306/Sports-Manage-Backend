@@ -2,9 +2,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Twilio = require('twilio');
 require('dotenv').config();
-  const { User } = require('../models');
+  const { User, userDetails, Coach, Organization, StudentGuardian  } = require('../models');
 const { secret } = require('../config/jwt.config');
 const twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const { Op } = require('sequelize');
+
+const { addToBlacklist } = require('../middleware/auth.middleware'); // Import the addToBlacklist function
+
+
 
 const saltRounds = 10;
 
@@ -13,12 +18,17 @@ const login = async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({ error: true, message: 'Email and password are required' });
-
   }
 
   try {
     const user = await User.findOne({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      return res.status(401).json({ error: true, message: 'Invalid credentials' });
+    }
+
+    // Check if the user's password matches
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       return res.status(401).json({ error: true, message: 'Invalid credentials' });
     }
 
@@ -28,17 +38,36 @@ const login = async (req, res) => {
       { expiresIn: '1h' }
     );
 
+    // Check if the user is verified
+    if (user.isVerify === 0) {
+      return res.json({ contact:user.contactNumber,error: false, message: 'Verification pending', otp: true, token });
+
+    }
+
     res.json({ error: false, token }); // No error, send the token
 
   } catch (error) {
+    console.error(error); // Log the error for debugging
     res.status(500).json({ error: true, message: 'Server error' });
-
   }
 };
 
+const logout = async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
+
+  if (token) {
+    // Add the token to the blacklist
+    addToBlacklist(token);
+
+    return res.status(200).json({ error: false, message: 'Logged out successfully' });
+  }
+
+  return res.status(400).json({ error: true, message: 'No token provided' });
+};
+
+
 
 let otpStore = {}; // Temporary storage for OTPs
-
 const sendOtp = async (req, res) => {
     
     const { contactNumber } = req.body;
@@ -60,11 +89,30 @@ const sendOtp = async (req, res) => {
 
 }
 
+const organizationWithCoaches = async (req, res) => {
+  console.log('he');
+  try {
+    // Fetch all organizations
+    const organizations = await Organization.findAll({
+      attributes: ['id', 'name', 'status'], // Specify the fields you want to retrieve
+    });
 
+    // Fetch all coaches
+    const coaches = await Coach.findAll({
+      attributes: ['id', 'type', 'status'], // Specify the fields you want to retrieve
+    });
 
-
-
-
+    // Send response with organizations and coaches in separate objects
+    res.status(200).json({
+      error: false,
+      organizations, // List of organizations
+      coaches,       // List of coaches
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: true, message: 'Server error' });
+  }
+};
 
 
 const verifyOtp = async (req, res) => {
@@ -97,54 +145,101 @@ const verifyOtp = async (req, res) => {
 };
 
 
-
-
-
 const register = async (req, res) => {
-  const { firstname, lastname, email, password, role, contactNumber, dateOfBirth,status,socialLogin } = req.body;
-console.log(req.body);
-  // console.log(req.body);
-  let errors = [];
+  const {
+    username, firstname, lastname, email, password, role, phoneNumber, 
+    dateOfBirth, status, socialLogin, coachType, organization,parentEmail, parentContact,athleteCode
+  } = req.body;
+  
+ 
+let errors = [];
 
-  if (!firstname) errors.push('Firstname is required');
-  if (!lastname) errors.push('Lastname is required');
-  if (!email) errors.push('Email is required');
-  if (!password) errors.push('Password is required');
-  if (!role) errors.push('Role is required');
-  if (!status) errors.push('Status is required');
-  if (!contactNumber) errors.push('Contact  is required');
-  if (!dateOfBirth) errors.push('Date of Birth is required');
+// Common validations
+if (!username) errors.push('Username is required');
+if (!firstname) errors.push('Firstname is required');
+if (!email) errors.push('Email is required');
+if (!password) errors.push('Password is required');
+if (!role) errors.push('Role is required');
+if (!status) errors.push('Status is required');
+if (!phoneNumber) errors.push('Contact number is required');
+if (!dateOfBirth) errors.push('Date of Birth is required');
 
-  if (errors.length > 0) {
-    return res.status(400).json({ error: true, messages: errors });
-  }
+// Validate only for 'coach' role
+if (role === 'coach') {
+  if (!coachType) errors.push('Coach Type is required');
+  if (!organization) errors.push('Organization is required');
 
+}
+if (role === 'parent') {
+  if (!athleteCode) errors.push('Code  is required');
+}
+if (role === 'student') {
+  if (!organization) errors.push('Organization is required');
+  if (!parentEmail) errors.push('Parent email is required for students');
+  if (!parentContact) errors.push('Parent contact number is required for students');
+}
+
+// Return validation errors if any
+if (errors.length > 0) {
+  return res.status(400).json({ error: true, messages: errors });
+}
   try {
-    const existingUser = await User.findOne({ where: { email } });
+    // Check if the user with the provided email already exists
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [
+          { email: email },
+          { username: username }
+        ]
+      }
+    });
+
+   
     if (existingUser) {
-      return res.status(400).json({ error: true, message: 'User already exists' });
+      return res.status(400).json({ error: true, message: 'User with this email or username already exists' });
     }
 
+    if (role === 'parent') {
+      const { athleteCode, email } = req.body;
+      const result = await updateParentSignup(athleteCode, email);
+      if (result.error) {
+        return res.status(400).json({ error: true, message: result.message });
+      }
+    }
+    // Hash the user's password before storing
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Create a new user record in the User table
     const user = await User.create({
+      username,
       firstname,
       lastname,
       email,
       password: hashedPassword,
       role,
-      contactNumber,
+      contactNumber:phoneNumber,
       dateOfBirth,
       status,
       socialLogin
     });
 
+    // After user creation, create an entry in the userDetails table
+    if (role === 'coach') {
+      await createCoachDetails(user.id, coachType, organization);
+    } else if (role === 'student') {
+      // Insert into StudentGuardian for 'student' role
+      await createStudentGuardianDetails(user.id, parentEmail, parentContact,organization);
+    }
+    
+
+    // Generate JWT token for the user
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, username: user.username },
       secret,
       { expiresIn: '1h' }
     );
 
+    // Respond with the generated token
     res.status(201).json({ error: false, token });
   } catch (error) {
     console.error(error);
@@ -153,9 +248,80 @@ console.log(req.body);
 };
 
 
+const createRandomNumericCode = (length) => {
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    const randomDigit = Math.floor(Math.random() * 10); // Generates a random digit from 0 to 9
+    result += randomDigit;
+  }
+  return result;
+};
+
+const updateParentSignup = async (athleteCode, parentEmail) => {
+  try {
+    // Find the student guardian with the provided athlete code and email
+    const studentGuardian = await StudentGuardian.findOne({
+      where: {
+        athleteCode: athleteCode,
+        parentEmail: parentEmail,
+      }
+    });
+
+    if (!studentGuardian) {
+      return { error: true, message: 'Wrong athlete code or email' };
+    }
+
+    // Update parentSignup from 0 to 1
+    studentGuardian.parentSignup = 1;
+    await studentGuardian.save();
+
+    return { error: false, message: 'Parent signup updated successfully' };
+  } catch (error) {
+    console.error('Error updating parent signup:', error);
+    throw error; // Handle this error as necessary
+  }
+};
+
+
+const createStudentGuardianDetails = async (userId, parentEmail, parentContact,organization) => {
+  const athleteCode = createRandomNumericCode(6); 
+  try {
+    await StudentGuardian.create({
+      userId,              // ID from the user table
+      parentEmail,         // Parent email
+      parentContact,       // Parent contact number
+      parentSignup: 0,  
+      organizationId:organization,   // Default value for parentSignup
+      athleteCode,          
+      status: 'active'     // Default status
+    });
+  } catch (error) {
+    console.error('Error creating student guardian details:', error);
+    throw error; // You may want to handle this error accordingly
+  }
+};
+
+const createCoachDetails = async (userId, coachTypeId, organizationId) => {
+  try {
+    await userDetails.create({
+      userId: userId,            // user.id from the created user
+      coachTypeId: coachTypeId,  // coachTypeId from the request
+      organizationId: organizationId, // OrganizationId from the request
+      status: 'active'           // Set default status or modify as per need
+    });
+  } catch (error) {
+    console.error("Error creating coach details:", error);
+    throw new Error('Failed to create coach details');
+  }
+};
+
+
+
 module.exports = {
   login,
   register,
   sendOtp,
+  organizationWithCoaches,
+  logout,
   verifyOtp
 };

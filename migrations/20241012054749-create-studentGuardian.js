@@ -2,56 +2,49 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('studentguardians', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: { // New column for username
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false // Username cannot be null
+      userId: { // Foreign key to the Users table
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Users', // Name of the Users table
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      email: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      firstname: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      lastname: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      role: {
-        type: Sequelize.ENUM('coach', 'parent', 'user', 'admin'),
-        allowNull: false
-      },
-      contactNumber: {
+      parentEmail: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      dateOfBirth: {
-        type: Sequelize.DATE,
-        allowNull: true
+      parentContact: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
-      isVerify: { 
+      parentSignup: { 
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0 // Default value set to 0
       },
-      socialLogin: { 
+      organizationId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        defaultValue: 0 // Default value set to 0
+        references: {
+          model: 'Organizations', // Reference to the Organization table
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      athleteCode: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       status: {
         type: Sequelize.ENUM('active', 'inactive', 'suspended'),
@@ -70,6 +63,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('studentguardians');
   }
 };
