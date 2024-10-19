@@ -6,6 +6,9 @@ require('dotenv').config();
 const { secret } = require('../config/jwt.config');
 const twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const { Op } = require('sequelize');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto'); // Make sure you require this
+const { renderTemplate } = require('../services/templateRenderer'); // Adjust the path as necessary
 
 const { addToBlacklist } = require('../middleware/auth.middleware'); // Import the addToBlacklist function
 
@@ -65,6 +68,58 @@ const logout = async (req, res) => {
   return res.status(400).json({ error: true, message: 'No token provided' });
 };
 
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: true, message: 'Email is required' });
+  }
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: true, message: 'User not found' });
+    }
+
+    // Generate a 6-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+    const otpExpires = Date.now() + 300000; // OTP valid for 5 minutes
+
+    // Save OTP and its expiration time in the user record
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    // Prepare email template
+    const currentYear = new Date().getFullYear();
+    const emailContent = renderTemplate('otpTemplate.html', { otp, currentYear });
+
+    // Send email
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail', // or another service
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      to: email,
+      from: process.env.EMAIL_USER,
+      subject: 'Your OTP Code',
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ error: false, message: 'OTP sent to your email' });
+
+  } catch (error) {
+    console.error('Error in sendOtp:', error);
+    res.status(500).json({ error: true, message: 'Server error' });
+  }
+
+};
 
 
 let otpStore = {}; // Temporary storage for OTPs
@@ -323,5 +378,6 @@ module.exports = {
   sendOtp,
   organizationWithCoaches,
   logout,
+  forgotPassword,
   verifyOtp
 };
