@@ -1,15 +1,16 @@
 {
 	"info": {
-		"_postman_id": "571aa959-21ab-46c6-80fa-ebafdc7deaf0",
+		"_postman_id": "3e246583-c537-49f6-9c92-4879a8cefda7",
 		"name": "Motiveteam",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2775705"
 	},
 	"item": [
 		{
 			"name": "Auth",
 			"item": [
 				{
-					"name": "user_register",
+					"name": "coach_register",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -21,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"username\": \"parentuser\", \"firstname\": \"John\", \"lastname\": \"Doe\", \"email\": \"sdfaaasdfsd@yopmail.com\", \"password\": \"parent@123\", \"role\": \"parent\", \"status\": \"active\"}\r\n",
+							"raw": "\r\n{\r\n  \"firstname\": \"Raj\",\r\n  \"lastname\": \"AdvaDigital\",\r\n  \"email\": \"nik.advsgit22al@gmail.com\",\r\n  \"username\": \"Nidka\",\r\n  \"organization\": 1,\r\n  \"coachType\": 1,\r\n  \"password\": \"Nitk2dh\",\r\n  \"role\": \"coach\",\r\n  \"phoneNumber\": \"+918755013890\",\r\n  \"dateOfBirth\": \"2024-10-12\",\r\n  \"status\": \"active\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -29,14 +30,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:4000/auth/register",
-							"protocol": "http",
+							"raw": "{{baseUrl}}auth/register",
 							"host": [
-								"localhost"
+								"{{baseUrl}}auth"
 							],
-							"port": "4000",
 							"path": [
-								"auth",
 								"register"
 							]
 						}
@@ -59,14 +57,11 @@
 							"raw": "{\r\n  \"email\": \"sohan@yopmail.com\",\r\n  \"password\": \"Demo@123\"\r\n}\r\n"
 						},
 						"url": {
-							"raw": "http://localhost:4000/auth/login",
-							"protocol": "http",
+							"raw": "{{baseUrl}}auth/login",
 							"host": [
-								"localhost"
+								"{{baseUrl}}auth"
 							],
-							"port": "4000",
 							"path": [
-								"auth",
 								"login"
 							]
 						}
@@ -89,17 +84,11 @@
 							"raw": "{\r\n\r\n\"contactNumber\":\"+918755013890\"\r\n\r\n}"
 						},
 						"url": {
-							"raw": "http://192.168.114.196:4000/auth/send-otp",
-							"protocol": "http",
+							"raw": "{{baseUrl}}auth/send-otp",
 							"host": [
-								"192",
-								"168",
-								"114",
-								"196"
+								"{{baseUrl}}auth"
 							],
-							"port": "4000",
 							"path": [
-								"auth",
 								"send-otp"
 							],
 							"query": [
@@ -108,6 +97,119 @@
 									"value": null,
 									"disabled": true
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organization-coachtype-List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}auth/organiz-coach",
+							"host": [
+								"{{baseUrl}}auth"
+							],
+							"path": [
+								"organiz-coach"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "student_register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n  \"firstname\": \"Raj\",\r\n  \"lastname\": \"AdvaDigital\",\r\n  \"email\": \"nik.asdfad2al@gmail.com\",\r\n  \"username\": \"Ndsfadka\",\r\n  \"organization\": 1,\r\n  \"password\": \"Nitk2dh\",\r\n  \"role\": \"student\",\r\n  \"phoneNumber\": \"+918755013890\",\r\n  \"dateOfBirth\": \"2024-10-12\",\r\n  \"status\": \"active\",\r\n  \"parentEmail\":\"abc@yopmail.com\",\r\n  \"parentContact\":\"+91875501234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}auth/register",
+							"host": [
+								"{{baseUrl}}auth"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "parent_register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n  \"firstname\": \"Raj\",\r\n  \"lastname\": \"AdvaDigital\",\r\n  \"email\": \"abcde@yopmail.com\",\r\n  \"username\": \"aasdbc\",\r\n  \"password\": \"asdf\",\r\n  \"role\": \"parent\",\r\n  \"phoneNumber\": \"+918755013890\",\r\n  \"dateOfBirth\": \"2024-10-12\",\r\n  \"status\": \"active\",\r\n    \"athleteCode\":\"944118\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}auth/register",
+							"host": [
+								"{{baseUrl}}auth"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forgot-password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"user@example.com\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}auth/forget-password",
+							"host": [
+								"{{baseUrl}}auth"
+							],
+							"path": [
+								"forget-password"
 							]
 						}
 					},
@@ -214,6 +316,14 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "test",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
 		}
 	]
 }

@@ -1,18 +1,25 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const Twilio = require('twilio');
-require('dotenv').config();
-  const { User, userDetails, Coach, Organization, StudentGuardian  } = require('../models');
-const { secret } = require('../config/jwt.config');
-const twilioClient = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const { Op } = require('sequelize');
-const nodemailer = require('nodemailer');
-const crypto = require('crypto'); // Make sure you require this
-const { renderTemplate } = require('../services/templateRenderer'); // Adjust the path as necessary
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const Twilio = require("twilio");
+require("dotenv").config();
+const {
+  User,
+  userDetails,
+  Coach,
+  Organization,
+  StudentGuardian,
+} = require("../models");
+const { secret } = require("../config/jwt.config");
+const twilioClient = Twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+const { Op } = require("sequelize");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto"); // Make sure you require this
+const { renderTemplate } = require("../services/templateRenderer"); // Adjust the path as necessary
 
-const { addToBlacklist } = require('../middleware/auth.middleware'); // Import the addToBlacklist function
-
-
+const { addToBlacklist } = require("../middleware/auth.middleware"); // Import the addToBlacklist function
 
 const saltRounds = 10;
 
@@ -20,66 +27,77 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ error: true, message: 'Email and password are required' });
+    return res
+      .status(400)
+      .json({ error: true, message: "Email and password are required" });
   }
 
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(401).json({ error: true, message: 'Invalid credentials' });
+      return res
+        .status(401)
+        .json({ error: true, message: "Invalid credentials" });
     }
 
     // Check if the user's password matches
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: true, message: 'Invalid credentials' });
+      return res
+        .status(401)
+        .json({ error: true, message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       secret,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" }
     );
 
     // Check if the user is verified
     if (user.isVerify === 0) {
-      return res.json({ contact:user.contactNumber,error: false, message: 'Verification pending', otp: true, token });
-
+      return res.json({
+        contact: user.contactNumber,
+        error: false,
+        message: "Verification pending",
+        otp: true,
+        token,
+      });
     }
 
     res.json({ error: false, token }); // No error, send the token
-
   } catch (error) {
     console.error(error); // Log the error for debugging
-    res.status(500).json({ error: true, message: 'Server error' });
+    res.status(500).json({ error: true, message: "Server error" });
   }
 };
 
 const logout = async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
+  const token = req.headers.authorization?.split(" ")[1]; // Extract the token from the Authorization header
 
   if (token) {
     // Add the token to the blacklist
     addToBlacklist(token);
 
-    return res.status(200).json({ error: false, message: 'Logged out successfully' });
+    return res
+      .status(200)
+      .json({ error: false, message: "Logged out successfully" });
   }
 
-  return res.status(400).json({ error: true, message: 'No token provided' });
+  return res.status(400).json({ error: true, message: "No token provided" });
 };
-
 
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({ error: true, message: 'Email is required' });
+    return res.status(400).json({ error: true, message: "Email is required" });
   }
 
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ error: true, message: 'User not found' });
+      return res.status(404).json({ error: true, message: "User not found" });
     }
 
     // Generate a 6-digit OTP
@@ -93,11 +111,14 @@ const forgotPassword = async (req, res) => {
 
     // Prepare email template
     const currentYear = new Date().getFullYear();
-    const emailContent = renderTemplate('otpTemplate.html', { otp, currentYear });
+    const emailContent = renderTemplate("otpTemplate.html", {
+      otp,
+      currentYear,
+    });
 
     // Send email
     const transporter = nodemailer.createTransport({
-      service: 'Gmail', // or another service
+      service: "Gmail", // or another service
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -107,76 +128,71 @@ const forgotPassword = async (req, res) => {
     const mailOptions = {
       to: email,
       from: process.env.EMAIL_USER,
-      subject: 'Your OTP Code',
+      subject: "Your OTP Code",
       html: emailContent,
     };
 
     await transporter.sendMail(mailOptions);
-    res.json({ error: false, message: 'OTP sent to your email' });
-
+    res.json({ error: false, message: "OTP sent to your email" });
   } catch (error) {
-    console.error('Error in sendOtp:', error);
-    res.status(500).json({ error: true, message: 'Server error' });
+    console.error("Error in sendOtp:", error);
+    res.status(500).json({ error: true, message: "Server error" });
   }
-
 };
-
 
 let otpStore = {}; // Temporary storage for OTPs
 const sendOtp = async (req, res) => {
-    
-    const { contactNumber } = req.body;
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
+  const { contactNumber } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
 
-    try {
-        await twilioClient.messages.create({
-            body: `Your OTP code is ${otp}`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: contactNumber,
-        });
+  try {
+    await twilioClient.messages.create({
+      body: `Your OTP code is ${otp}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: contactNumber,
+    });
 
-        otpStore[contactNumber] = otp; // Store OTP
-        return res.json({ success: true });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: 'Failed to send OTP.' });
-    }
-
-}
+    otpStore[contactNumber] = otp; // Store OTP
+    return res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to send OTP." });
+  }
+};
 
 const organizationWithCoaches = async (req, res) => {
-  console.log('he');
+  console.log("he");
   try {
     // Fetch all organizations
     const organizations = await Organization.findAll({
-      attributes: ['id', 'name', 'status'], // Specify the fields you want to retrieve
+      attributes: ["id", "name", "status"], // Specify the fields you want to retrieve
     });
 
     // Fetch all coaches
     const coaches = await Coach.findAll({
-      attributes: ['id', 'type', 'status'], // Specify the fields you want to retrieve
+      attributes: ["id", "type", "status"], // Specify the fields you want to retrieve
     });
 
     // Send response with organizations and coaches in separate objects
     res.status(200).json({
       error: false,
       organizations, // List of organizations
-      coaches,       // List of coaches
+      coaches, // List of coaches
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: true, message: 'Server error' });
+    res.status(500).json({ error: true, message: "Server error" });
   }
 };
 
-
 const verifyOtp = async (req, res) => {
-  const { contactNumber,otp } = req.body;
+  const { contactNumber, otp } = req.body;
   const userEmail = req.user.email; // Extract email from the authenticated user in the JWT
 
   if (otpStore[contactNumber] === otp) {
     delete otpStore[contactNumber]; // Clear the OTP after verification
-
 
     try {
       // Update the user's isVerify status in the database using the email
@@ -186,75 +202,85 @@ const verifyOtp = async (req, res) => {
       );
 
       if (updated) {
-        return res.json({ success: true, message: 'OTP verified' });
-      } 
+        return res.json({ success: true, message: "OTP verified" });
+      }
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ success: false, message: 'Server error.' });
+      return res.status(500).json({ success: false, message: "Server error." });
     }
-
-    
   } else {
-    return res.json({ success: false, message: 'Invalid OTP.' });
+    return res.json({ success: false, message: "Invalid OTP." });
   }
 };
 
-
 const register = async (req, res) => {
   const {
-    username, firstname, lastname, email, password, role, phoneNumber, 
-    dateOfBirth, status, socialLogin, coachType, organization,parentEmail, parentContact,athleteCode
+    username,
+    firstname,
+    lastname,
+    email,
+    password,
+    role,
+    phoneNumber,
+    dateOfBirth,
+    status,
+    socialLogin,
+    coachType,
+    organization,
+    parentEmail,
+    parentContact,
+    athleteCode,
   } = req.body;
-  
- 
-let errors = [];
 
-// Common validations
-if (!username) errors.push('Username is required');
-if (!firstname) errors.push('Firstname is required');
-if (!email) errors.push('Email is required');
-if (!password) errors.push('Password is required');
-if (!role) errors.push('Role is required');
-if (!status) errors.push('Status is required');
-if (!phoneNumber) errors.push('Contact number is required');
-if (!dateOfBirth) errors.push('Date of Birth is required');
+  let errors = [];
 
-// Validate only for 'coach' role
-if (role === 'coach') {
-  if (!coachType) errors.push('Coach Type is required');
-  if (!organization) errors.push('Organization is required');
+  // Common validations
+  if (!username) errors.push("Username is required");
+  if (!firstname) errors.push("Firstname is required");
+  if (!email) errors.push("Email is required");
+  if (!password) errors.push("Password is required");
+  if (!role) errors.push("Role is required");
+  if (!status) errors.push("Status is required");
+  if (!phoneNumber) errors.push("Contact number is required");
+  if (!dateOfBirth) errors.push("Date of Birth is required");
 
-}
-if (role === 'parent') {
-  if (!athleteCode) errors.push('Code  is required');
-}
-if (role === 'student') {
-  if (!organization) errors.push('Organization is required');
-  if (!parentEmail) errors.push('Parent email is required for students');
-  if (!parentContact) errors.push('Parent contact number is required for students');
-}
+  // Validate only for 'coach' role
+  if (role === "coach") {
+    if (!coachType) errors.push("Coach Type is required");
+    if (!organization) errors.push("Organization is required");
+  }
+  if (role === "parent") {
+    if (!athleteCode) errors.push("Code  is required");
+  }
+  if (role === "student") {
+    if (!organization) errors.push("Organization is required");
+    if (!parentEmail) errors.push("Parent email is required for students");
+    if (!parentContact)
+      errors.push("Parent contact number is required for students");
+  }
 
-// Return validation errors if any
-if (errors.length > 0) {
-  return res.status(400).json({ error: true, messages: errors });
-}
+  // Return validation errors if any
+  if (errors.length > 0) {
+    return res.status(400).json({ error: true, messages: errors });
+  }
   try {
     // Check if the user with the provided email already exists
     const existingUser = await User.findOne({
       where: {
-        [Op.or]: [
-          { email: email },
-          { username: username }
-        ]
-      }
+        [Op.or]: [{ email: email }, { username: username }],
+      },
     });
 
-   
     if (existingUser) {
-      return res.status(400).json({ error: true, message: 'User with this email or username already exists' });
+      return res
+        .status(400)
+        .json({
+          error: true,
+          message: "User with this email or username already exists",
+        });
     }
 
-    if (role === 'parent') {
+    if (role === "parent") {
       const { athleteCode, email } = req.body;
       const result = await updateParentSignup(athleteCode, email);
       if (result.error) {
@@ -272,39 +298,47 @@ if (errors.length > 0) {
       email,
       password: hashedPassword,
       role,
-      contactNumber:phoneNumber,
+      contactNumber: phoneNumber,
       dateOfBirth,
       status,
-      socialLogin
+      socialLogin,
     });
 
     // After user creation, create an entry in the userDetails table
-    if (role === 'coach') {
+    if (role === "coach") {
       await createCoachDetails(user.id, coachType, organization);
-    } else if (role === 'student') {
+    } else if (role === "student") {
       // Insert into StudentGuardian for 'student' role
-      await createStudentGuardianDetails(user.id, parentEmail, parentContact,organization);
+      await createStudentGuardianDetails(
+        user.id,
+        parentEmail,
+        parentContact,
+        organization
+      );
     }
-    
 
     // Generate JWT token for the user
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role, username: user.username },
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        username: user.username,
+      },
       secret,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" }
     );
 
     // Respond with the generated token
     res.status(201).json({ error: false, token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: true, message: 'Server error' });
+    res.status(500).json({ error: true, message: "Server error" });
   }
 };
 
-
 const createRandomNumericCode = (length) => {
-  let result = '';
+  let result = "";
   for (let i = 0; i < length; i++) {
     const randomDigit = Math.floor(Math.random() * 10); // Generates a random digit from 0 to 9
     result += randomDigit;
@@ -319,39 +353,66 @@ const updateParentSignup = async (athleteCode, parentEmail) => {
       where: {
         athleteCode: athleteCode,
         parentEmail: parentEmail,
-      }
+      },
     });
 
     if (!studentGuardian) {
-      return { error: true, message: 'Wrong athlete code or email' };
+      return { error: true, message: "Wrong athlete code or email" };
     }
 
     // Update parentSignup from 0 to 1
     studentGuardian.parentSignup = 1;
     await studentGuardian.save();
 
-    return { error: false, message: 'Parent signup updated successfully' };
+    return { error: false, message: "Parent signup updated successfully" };
   } catch (error) {
-    console.error('Error updating parent signup:', error);
+    console.error("Error updating parent signup:", error);
     throw error; // Handle this error as necessary
   }
 };
 
-
-const createStudentGuardianDetails = async (userId, parentEmail, parentContact,organization) => {
-  const athleteCode = createRandomNumericCode(6); 
+const createStudentGuardianDetails = async (
+  userId,
+  parentEmail,
+  parentContact,
+  organization
+) => {
+  const athleteCode = createRandomNumericCode(6);
   try {
     await StudentGuardian.create({
-      userId,              // ID from the user table
-      parentEmail,         // Parent email
-      parentContact,       // Parent contact number
-      parentSignup: 0,  
-      organizationId:organization,   // Default value for parentSignup
-      athleteCode,          
-      status: 'active'     // Default status
+      userId, // ID from the user table
+      parentEmail, // Parent email
+      parentContact, // Parent contact number
+      parentSignup: 0,
+      organizationId: organization, // Default value for parentSignup
+      athleteCode,
+      status: "active", // Default status
     });
+
+    const emailContent = renderTemplate("athleteCodeTemplate.html", {
+      athleteCode,
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail", // Change service as necessary
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // Define mail options
+    const mailOptions = {
+      to: parentEmail,
+      from: process.env.EMAIL_USER,
+      subject: "Your Athlete Code",
+      html: emailContent,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Error creating student guardian details:', error);
+    console.error("Error creating student guardian details:", error);
     throw error; // You may want to handle this error accordingly
   }
 };
@@ -359,18 +420,16 @@ const createStudentGuardianDetails = async (userId, parentEmail, parentContact,o
 const createCoachDetails = async (userId, coachTypeId, organizationId) => {
   try {
     await userDetails.create({
-      userId: userId,            // user.id from the created user
-      coachTypeId: coachTypeId,  // coachTypeId from the request
+      userId: userId, // user.id from the created user
+      coachTypeId: coachTypeId, // coachTypeId from the request
       organizationId: organizationId, // OrganizationId from the request
-      status: 'active'           // Set default status or modify as per need
+      status: "active", // Set default status or modify as per need
     });
   } catch (error) {
     console.error("Error creating coach details:", error);
-    throw new Error('Failed to create coach details');
+    throw new Error("Failed to create coach details");
   }
 };
-
-
 
 module.exports = {
   login,
@@ -379,5 +438,5 @@ module.exports = {
   organizationWithCoaches,
   logout,
   forgotPassword,
-  verifyOtp
+  verifyOtp,
 };
