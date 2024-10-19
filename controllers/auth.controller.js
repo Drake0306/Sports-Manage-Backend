@@ -18,6 +18,9 @@ const { Op } = require("sequelize");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto"); // Make sure you require this
 const { renderTemplate } = require("../services/templateRenderer"); // Adjust the path as necessary
+const Redis = require("ioredis");
+const redisClient = new Redis(); // Connect to Redis
+
 
 const { addToBlacklist } = require("../middleware/auth.middleware"); // Import the addToBlacklist function
 
@@ -107,7 +110,10 @@ const forgotPassword = async (req, res) => {
     // Save OTP and its expiration time in the user record
     user.otp = otp;
     user.otpExpires = otpExpires;
+
     await user.save();
+
+    await redisClient.setex(`otp:${email}`, otpExpires, otp);
 
     // Prepare email template
     const currentYear = new Date().getFullYear();
@@ -138,6 +144,31 @@ const forgotPassword = async (req, res) => {
     console.error("Error in sendOtp:", error);
     res.status(500).json({ error: true, message: "Server error" });
   }
+};
+
+
+const verifyForgotOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: true, message: "Email and OTP are required" });
+  }
+
+  const storedOtp = await redisClient.get(`otp:${email}`);
+
+  if (!storedOtp) {
+    return res.status(400).json({ error: true, message: "OTP expired or not found" });
+  }
+
+  if (otp !== storedOtp) {
+    return res.status(400).json({ error: true, message: "Invalid OTP" });
+  }
+
+  // OTP is valid
+  res.json({ error: false, message: "OTP verified successfully" });
+
+  // Optionally delete the OTP after successful verification
+  await redisClient.del(`otp:${email}`);
 };
 
 let otpStore = {}; // Temporary storage for OTPs
@@ -437,6 +468,7 @@ module.exports = {
   sendOtp,
   organizationWithCoaches,
   logout,
+  verifyForgotOtp,
   forgotPassword,
   verifyOtp,
 };
