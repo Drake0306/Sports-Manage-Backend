@@ -20,11 +20,10 @@ const { Op } = require("sequelize");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto"); // Make sure you require this
 const { renderTemplate } = require("../services/templateRenderer"); // Adjust the path as necessary
-
-
 const { addToBlacklist } = require("../middleware/auth.middleware"); // Import the addToBlacklist function
-
 const saltRounds = 10;
+
+
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -148,6 +147,8 @@ const forgotPassword = async (req, res) => {
 };
 
 
+
+
 const verifyForgotOtp = async (req, res) => {
   const { email, otp } = req.body;
 
@@ -162,6 +163,38 @@ const verifyForgotOtp = async (req, res) => {
 
   otpCache.del(email); // Remove OTP after successful verification
   res.json({ error: false, message: "OTP verified successfully" });
+};
+
+
+const changePassword = async (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({ error: true, message: "Email and password are required" });
+  }
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: true, message: "User not found" });
+    }
+
+    // Hash the new password using bcrypt (same process as in your register method)
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Update user's password with the hashed password
+    user.password = hashedPassword;
+
+    // Save the updated user record
+    await user.save();
+
+    res.json({ error: false, message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error in changePassword:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
 };
 
 let otpStore = {}; // Temporary storage for OTPs
@@ -463,5 +496,6 @@ module.exports = {
   logout,
   verifyForgotOtp,
   forgotPassword,
+  changePassword,
   verifyOtp,
 };
