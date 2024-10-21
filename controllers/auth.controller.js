@@ -14,7 +14,7 @@ const twilioClient = Twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
-const NodeCache = require('node-cache');
+const NodeCache = require("node-cache");
 const otpCache = new NodeCache({ stdTTL: 300 }); // TTL (time-to-live) of 300 seconds (5 minutes)
 const { Op } = require("sequelize");
 const nodemailer = require("nodemailer");
@@ -22,8 +22,6 @@ const crypto = require("crypto"); // Make sure you require this
 const { renderTemplate } = require("../services/templateRenderer"); // Adjust the path as necessary
 const { addToBlacklist } = require("../middleware/auth.middleware"); // Import the addToBlacklist function
 const saltRounds = 10;
-
-
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -93,17 +91,21 @@ const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({ error: true, message: "Email is required" });
+    return res
+      .status(400)
+      .json({ error: true, success: false, message: "Email is required" });
   }
 
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ error: true, message: "User not found" });
+      return res
+        .status(404)
+        .json({ error: true, success: false, message: "User not found" });
     }
 
     // Generate a 6-digit OTP
-    const otp = Math.floor(1000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString(); // Generate a 6-digit OTP
     const otpExpires = Date.now() + 300000; // OTP valid for 5 minutes
 
     // Save OTP and its expiration time in the user record
@@ -113,7 +115,6 @@ const forgotPassword = async (req, res) => {
     otpCache.set(email, otp);
 
     await user.save();
-
 
     // Prepare email template
     const currentYear = new Date().getFullYear();
@@ -139,30 +140,44 @@ const forgotPassword = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    res.json({ error: false, message: "OTP sent to your email" });
+    res.json({
+      error: false,
+      success: true,
+      message: "OTP sent to your email",
+    });
   } catch (error) {
     console.error("Error in sendOtp:", error);
-    res.status(500).json({ error: true, message: "Server error" });
+    res
+      .status(500)
+      .json({ error: true, success: false, message: "Server error" });
   }
 };
 
-
-
-
 const verifyForgotOtp = async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp } = req.body;  // Destructure email and otp directly
 
+  // Verify that email is a string (to prevent issues if it's still an object)
+  if (typeof email !== 'string') {
+    return res.status(400).json({ error: true, message: "Invalid email format" });
+  }
+
+  console.log("Received email:", email, "Received OTP:", otp); // Debugging logs
+
+  // Retrieve stored OTP from the cache using email as the key
   const storedOtp = otpCache.get(email);
+
   if (!storedOtp) {
     return res.status(400).json({ error: true, message: "OTP expired or invalid" });
   }
 
+  // Check if the stored OTP matches the OTP from the request
   if (storedOtp !== otp) {
     return res.status(400).json({ error: true, message: "Invalid OTP" });
   }
 
-  otpCache.del(email); // Remove OTP after successful verification
-  res.json({ error: false, message: "OTP verified successfully" });
+  // If OTP matches, delete it from the cache and send success response
+  otpCache.del(email); 
+  return res.json({ error: false, success: true, message: "OTP verified successfully" });
 };
 
 
@@ -171,7 +186,9 @@ const changePassword = async (req, res) => {
 
   // Check if email and password are provided
   if (!email || !password) {
-    return res.status(400).json({ error: true, message: "Email and password are required" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Email and password are required" });
   }
 
   try {
@@ -190,7 +207,7 @@ const changePassword = async (req, res) => {
     // Save the updated user record
     await user.save();
 
-    res.json({ error: false, message: "Password changed successfully" });
+    res.json({ error: false, success:true, message: "Password changed successfully" });
   } catch (error) {
     console.error("Error in changePassword:", error);
     res.status(500).json({ error: true, message: "Server error" });
@@ -329,12 +346,10 @@ const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res
-        .status(400)
-        .json({
-          error: true,
-          message: "User with this email or username already exists",
-        });
+      return res.status(400).json({
+        error: true,
+        message: "User with this email or username already exists",
+      });
     }
 
     if (role === "parent") {
