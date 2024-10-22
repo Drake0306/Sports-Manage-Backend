@@ -288,6 +288,7 @@ const verifyOtp = async (req, res) => {
 };
 
 const register = async (req, res) => {
+  console.log(req.body);
   const {
     username,
     firstname,
