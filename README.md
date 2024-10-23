@@ -36,6 +36,21 @@ Follow these steps to set up and run the backend application locally.
 ## Run Seeders
 npx sequelize db:seed:all
 
+## Generate Encription Keys
+node scripts/generate-keys.js
+
 ## Start the Application
 
   npm start or npm run dev
+
+
+# Extra commands if needed
+
+# Drop existing tables
+` npx sequelize-cli db:drop `
+
+# Create database again
+` npx sequelize-cli db:create `
+
+# Run migrations
+` npx sequelize-cli db:migrate `

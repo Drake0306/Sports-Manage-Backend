@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "3e246583-c537-49f6-9c92-4879a8cefda7",
+		"_postman_id": "49ab4033-b76b-4fdf-8737-30c275ca1272",
 		"name": "Motiveteam",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "2775705"
+		"_exporter_id": "15446770"
 	},
 	"item": [
 		{
@@ -36,6 +36,175 @@
 							],
 							"path": [
 								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_text_encription",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"text\": \"Hello, this is a test message!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/test-encryption",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"test-encryption"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_create_chatroom",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userPhone\": \"+917903826151\",\n    \"receiverPhone\": \"+1234567891\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/room/",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"room",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roomId\": \"+1234567891-+917903826151\",\n    \"senderPhone\": \"+917903826151\",\n    \"text\": \"Hello, this is a test message!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/message/",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"message",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_history",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roomId\": \"+1234567891-+917903826151\",\n    \"senderPhone\": \"+917903826151\",\n    \"text\": \"Hello, this is a test message!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/history/+1234567891-+917903826151",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"history",
+								"+1234567891-+917903826151"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_message_statuis",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"delivered\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/message/07d3b9a3-bb27-4de6-88c9-35e90eadf2e5/status/",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"message",
+								"07d3b9a3-bb27-4de6-88c9-35e90eadf2e5",
+								"status",
+								""
 							]
 						}
 					},
