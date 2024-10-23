@@ -6,11 +6,20 @@ const userRoutes = require('./routes/user.routes');
 const coachRoutes = require('./routes/coach.routes');
 const parentRoutes = require('./routes/parent.routes');
 const adminRoutes = require('./routes/admin.routes');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 
+// Create the uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
 // Use CORS with default settings or specify options
 app.use(cors()); // Allow all origins by default
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // If you want to restrict origins, you can use:
 // app.use(cors({
@@ -21,6 +30,7 @@ app.use(express.json());
 app.get('/test', (req, res) => {
   res.json({ message: 'This is a test endpoint!', timestamp: new Date() });
 });
+
 // Public routes
 app.use('/auth', authRoutes);
 
