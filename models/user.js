@@ -4,7 +4,8 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // Define associations here if needed
+      User.hasOne(models.userDetails, { foreignKey: 'userId', onDelete: 'CASCADE' });
+
     }
   }
   
@@ -66,6 +67,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('active', 'inactive', 'suspended'),
       allowNull: false,
       defaultValue: 'active'
+    }, userImage: { // New userImage field
+      type: DataTypes.STRING,
+      allowNull: true // It can be null
     }
   }, {
     sequelize,

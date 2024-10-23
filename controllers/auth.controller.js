@@ -376,7 +376,7 @@ const register = async (req, res) => {
       status,
       socialLogin,
     });
-
+    console.log(user)
     // After user creation, create an entry in the userDetails table
     if (role === "coach") {
       await createCoachDetails(user.id, coachType, organization);

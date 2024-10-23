@@ -12,6 +12,8 @@ module.exports = (sequelize, DataTypes) => {
 
       // Define association with the Organization model
       userDetails.belongsTo(models.Organization, { foreignKey: 'organizationId', onDelete: 'CASCADE' });
+
+      
     }
   }
 

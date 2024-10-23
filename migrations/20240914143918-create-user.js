@@ -58,6 +58,10 @@ module.exports = {
         allowNull: false,
         defaultValue: 'active' // Default value set to 'active'
       },
+      userImage: { // New column for user image
+        type: Sequelize.STRING,
+        allowNull: true, // Allows NULL by default
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
