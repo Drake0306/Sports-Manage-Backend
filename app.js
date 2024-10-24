@@ -11,7 +11,8 @@ const ChatService = require('./services/chatService');
 const chatRoutes = require('./routes/chatRoutes');
 const app = express();
 const server = http.createServer(app);
-
+const path = require('path');
+const fs = require('fs');
 // Create the uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
