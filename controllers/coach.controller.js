@@ -1,4 +1,4 @@
-const { User, userDetails } = require("../models");
+const { CoachTeam, User, userDetails } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');
@@ -147,10 +147,46 @@ const updateCoachProfile = async (req, res) => {
   }
 };
 
+const createCoachTeam = async (req, res) => {
+  try {
+    // Extract token and decode it
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Extract the incoming data from the request body
+    const { teamName, teamCode, status } = req.body;
+    const teamLogo = req.file ? req.file.path : null; // Save team logo path if available
+
+    // Insert data into coachTeam table
+    const newTeam = await CoachTeam.create({
+      teamName,
+      teamCode,
+      teamLogo, // Save logo path to the teamLogo column
+      status,
+    });
+
+    res.json({
+      error: false,
+      message: "Team created successfully",
+      team: newTeam
+    });
+  } catch (error) {
+    console.error("Error creating coach team:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
 
 module.exports = {
   getCoachData,
   getCoachProfile,
   updateCoachProfile,
-  upload 
+  upload ,
+  createCoachTeam
 };
