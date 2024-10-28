@@ -1,4 +1,4 @@
-const { CoachTeam, User, userDetails,CoachAnnouncement  } = require("../models");
+const { CoachTeam, User, userDetails, CoachAnnouncement } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');
@@ -17,12 +17,15 @@ const storage = multer.diskStorage({
 // Create the multer instance
 const upload = multer({ storage });
 
-const getCoachData = (req, res) => {
-  // Retrieve and send coach-specific data
-  res.send("Coach data");
+const getCoachData = async (req, res) => {
+  try {
+    // Retrieve and send coach-specific data
+    res.send("Coach data");
+  } catch (error) {
+    console.error("Error fetching coach data:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
 };
-
-
 
 const getCoachProfile = async (req, res) => {
   try {
@@ -41,7 +44,7 @@ const getCoachProfile = async (req, res) => {
       where: { id: decodedToken.id },
       include: [
         {
-          model: userDetails, // This is fine
+          model: userDetails,
           required: true // Ensure userDetails are found
         }
       ]
@@ -54,21 +57,20 @@ const getCoachProfile = async (req, res) => {
     if (!coach.userDetail) {
       return res.status(404).json({ error: true, message: "User details not found" });
     }
+    
     const profile = {
       ...coach.dataValues,
-
       coachTypeId: coach.userDetail.coachTypeId, // Access coachTypeId
       coachstatus: coach.userDetail.status // Access status
     };
+    
     res.json({ error: false, profile });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching coach profile:", error);
     res.status(500).json({ error: true, message: "Server error" });
   }
 };
-
-
 
 const updateCoachProfile = async (req, res) => {
   try {
@@ -88,7 +90,6 @@ const updateCoachProfile = async (req, res) => {
     // Extract the incoming data from the request body
     const { firstname, lastname, username, email, phoneNumber, coachTypeId } = req.body;
 
-    
     // Handle the uploaded userImage
     let userImage = req.file ? req.file.path : null; // Save the image path if available
 
@@ -232,7 +233,7 @@ module.exports = {
   getCoachData,
   getCoachProfile,
   updateCoachProfile,
-  upload ,
+  upload,
   createAnnouncement,
   createCoachTeam
 };
