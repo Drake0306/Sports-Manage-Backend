@@ -149,6 +149,9 @@ const updateCoachProfile = async (req, res) => {
 };
 
 const createCoachTeam = async (req, res) => {
+
+
+  console.log(req.body)
   try {
     // Extract token and decode it
     const token = req.headers.authorization.split(" ")[1];
@@ -230,11 +233,68 @@ const createAnnouncement = async (req, res) => {
   }
 };
 
+const listAnnouncement = async (req, res) => {
+  try {
+    // Extract token from the authorization header
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    // Verify the token and decode it
+    const decodedToken = jwt.verify(token, secret);
+    
+    // Check if the user is a coach
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Extract coachId from the decoded token
+    const coachId = decodedToken.id; // Assuming the coachId is stored in the token
+
+    // Fetch announcements for the specific coach from the database
+    const announcements = await CoachAnnouncement.findAll({
+      // where: { coachId }, // Filter announcements by coachId
+      order: [['createdAt', 'DESC']], // Optional: Order by creation date
+      include: [
+        {
+          model: User,
+          as: 'coach', // This should match the alias defined in the association
+          attributes: ['username','role'] // Only fetch the username field
+        }
+      ]
+    });
+
+    // Map the results to include the coach's username
+    const formattedAnnouncements = announcements.map(announcement => ({
+      id: announcement.id,
+      coachId: announcement.coachId,
+      username: announcement.coach.username,
+      role:announcement.coach.role, // Get the username from the included User
+      announcement: announcement.announcement,
+      createdAt: announcement.createdAt // Include any other fields as needed
+    }));
+
+    // Respond with the list of announcements
+    res.status(200).json({
+      error: false,
+      announcements: formattedAnnouncements // Return the formatted announcements
+    });
+  } catch (error) {
+    console.error("Error fetching announcements:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+
+
+
 module.exports = {
   getCoachData,
   getCoachProfile,
   updateCoachProfile,
   upload,
   createAnnouncement,
+  listAnnouncement,
   createCoachTeam
 };
