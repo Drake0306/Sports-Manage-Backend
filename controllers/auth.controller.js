@@ -237,7 +237,6 @@ const sendOtp = async (req, res) => {
 };
 
 const organizationWithCoaches = async (req, res) => {
-  console.log("he");
   try {
     // Fetch all organizations
     const organizations = await Organization.findAll({

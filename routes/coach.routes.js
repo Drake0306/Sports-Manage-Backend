@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth.middleware');
-const { getCoachData, getCoachProfile,updateCoachProfile, createCoachTeam } = require('../controllers/coach.controller');
+const { getCoachData, getCoachProfile,updateCoachProfile, createCoachTeam, createAnnouncement } = require('../controllers/coach.controller');
 const multer = require('multer');
 
 const router = express.Router();
@@ -20,5 +20,5 @@ router.get('/data', authenticateToken, authorizeRole('coach'), getCoachData);
 router.get('/profile', authenticateToken, authorizeRole('coach'), getCoachProfile);
 router.post('/profile/update', authenticateToken, authorizeRole('coach'), upload.single('userImage'), updateCoachProfile);
 router.post('/team', authenticateToken, authorizeRole('coach'), upload.single('teamLogo'), createCoachTeam); // Use createCoachTeam
-
+router.post('/announcements',authenticateToken, authorizeRole('coach'),createAnnouncement);
 module.exports = router;

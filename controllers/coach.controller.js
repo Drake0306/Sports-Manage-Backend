@@ -1,4 +1,4 @@
-const { CoachTeam, User, userDetails } = require("../models");
+const { CoachTeam, User, userDetails,CoachAnnouncement  } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');
@@ -160,8 +160,11 @@ const createCoachTeam = async (req, res) => {
       return res.status(403).json({ error: true, message: "Access denied, not a coach" });
     }
 
+    // Fetch coachId from the decoded token
+    const coachId = decodedToken.id; // Assuming your token contains the user ID
+
     // Extract the incoming data from the request body
-    const { teamName, teamCode, status } = req.body;
+    const { teamName, teamCode, status, sport, teamColor } = req.body; // Include sport and teamColor
     const teamLogo = req.file ? req.file.path : null; // Save team logo path if available
 
     // Insert data into coachTeam table
@@ -170,6 +173,9 @@ const createCoachTeam = async (req, res) => {
       teamCode,
       teamLogo, // Save logo path to the teamLogo column
       status,
+      sport, // Include sport ID from the request body
+      teamColor, // Include team color from the request body
+      coachId, // Include coachId from the token
     });
 
     res.json({
@@ -183,10 +189,50 @@ const createCoachTeam = async (req, res) => {
   }
 };
 
+const createAnnouncement = async (req, res) => {
+  try {
+    // Extract token from the authorization header
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    // Verify the token and decode it
+    const decodedToken = jwt.verify(token, secret);
+    
+    // Check if the user is a coach
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Extract the incoming data from the request body
+    const { announcement, status } = req.body;
+    const coachId = decodedToken.id; // Assuming the coachId is stored in the token
+
+    // Create the announcement in the database
+    const newAnnouncement = await CoachAnnouncement.create({
+      coachId,       // Map coachId from the decoded token
+      announcement,  // Announcement text
+      status         // Status (active/inactive)
+    });
+
+    // Respond with success message and the created announcement
+    res.status(201).json({
+      error: false,
+      message: "Announcement created successfully",
+      announcement: newAnnouncement
+    });
+  } catch (error) {
+    console.error("Error creating announcement:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
 module.exports = {
   getCoachData,
   getCoachProfile,
   updateCoachProfile,
   upload ,
+  createAnnouncement,
   createCoachTeam
 };
