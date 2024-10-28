@@ -59,7 +59,11 @@ router.post('/message', async (req, res) => {
             });
         }
 
-        const room = await ChatRoom.findOne({ where: { roomId } });
+        // Find the room first
+        const room = await ChatRoom.findOne({
+            where: { roomId }
+        });
+
         if (!room) {
             return res.status(404).json({
                 success: false,
@@ -78,7 +82,7 @@ router.post('/message', async (req, res) => {
         const encryptedContent = encryptionService.encrypt(text);
         
         const message = await Message.create({
-            roomId: room.id,
+            roomId: room.roomId,  // Use the room's roomId
             senderPhone,
             encryptedContent,
             status: 'sent'
@@ -89,7 +93,7 @@ router.post('/message', async (req, res) => {
             message: {
                 id: message.id,
                 sender: senderPhone,
-                text: text, // Sending back original text for testing
+                text: text,
                 timestamp: message.createdAt,
                 status: message.status
             }
@@ -107,7 +111,9 @@ router.post('/message', async (req, res) => {
 router.get('/history/:roomId', async (req, res) => {
     try {
         const { roomId } = req.params;
-        const room = await ChatRoom.findOne({ where: { roomId } });
+        const room = await ChatRoom.findOne({
+            where: { roomId }
+        });
         
         if (!room) {
             return res.status(404).json({
@@ -117,7 +123,7 @@ router.get('/history/:roomId', async (req, res) => {
         }
 
         const messages = await Message.findAll({
-            where: { roomId: room.id },
+            where: { roomId: room.roomId },  // Use the room's roomId
             order: [['createdAt', 'ASC']]
         });
 

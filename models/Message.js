@@ -1,9 +1,7 @@
+// models/Message.js
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    // Import ChatRoom after initializing
-    const ChatRoom = require('./ChatRoom')(sequelize);
-
     class Message extends Model {}
 
     Message.init({
@@ -13,9 +11,13 @@ module.exports = (sequelize) => {
             primaryKey: true
         },
         roomId: {
-            type: DataTypes.UUID,
+            type: DataTypes.STRING,  // Changed to STRING to match ChatRoom's roomId
             allowNull: false,
-            field: 'room_id'
+            field: 'room_id',
+            references: {
+                model: 'chat_rooms',
+                key: 'room_id'  // Reference the room_id column
+            }
         },
         senderPhone: {
             type: DataTypes.STRING,
@@ -37,10 +39,6 @@ module.exports = (sequelize) => {
         tableName: 'messages',
         underscored: true,
     });
-
-    // Set up associations after both models are initialized
-    ChatRoom.hasMany(Message, { foreignKey: 'roomId' });
-    Message.belongsTo(ChatRoom, { foreignKey: 'roomId' });
 
     return Message;
 };

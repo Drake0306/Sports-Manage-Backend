@@ -54,3 +54,7 @@ node scripts/generate-keys.js
 
 # Run migrations
 ` npx sequelize-cli db:migrate `
+
+
+# Creating NEW Migrations
+` npx sequelize-cli migration:generate --name name-of-migration `

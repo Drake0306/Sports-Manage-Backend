@@ -9,8 +9,11 @@ const parentRoutes = require('./routes/parent.routes');
 const adminRoutes = require('./routes/admin.routes');
 const ChatService = require('./services/chatService');
 const chatRoutes = require('./routes/chatRoutes');
+
+
 const app = express();
 const server = http.createServer(app);
+
 const path = require('path');
 const fs = require('fs');
 // Create the uploads directory if it doesn't exist
@@ -54,6 +57,6 @@ app.use('/chat', chatRoutes);
 
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
