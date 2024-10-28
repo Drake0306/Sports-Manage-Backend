@@ -191,6 +191,7 @@ const createCoachTeam = async (req, res) => {
 };
 
 const createAnnouncement = async (req, res) => {
+
   try {
     // Extract token from the authorization header
     const token = req.headers.authorization.split(" ")[1];
