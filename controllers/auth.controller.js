@@ -49,7 +49,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, userName: user.userName, email: user.email, role: user.role, contactNumber: user.contactNumber },
       secret,
       { expiresIn: "1h" }
     );
@@ -287,7 +287,7 @@ const verifyOtp = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  console.log(req.body);
+  console.log('####',req.body);
   const {
     username,
     firstname,
@@ -359,6 +359,7 @@ const register = async (req, res) => {
         return res.status(400).json({ error: true, message: result.message });
       }
     }
+
     // Hash the user's password before storing
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -375,7 +376,7 @@ const register = async (req, res) => {
       status,
       socialLogin,
     });
-    console.log(user)
+    console.log('#########',user)
     // After user creation, create an entry in the userDetails table
     if (role === "coach") {
       await createCoachDetails(user.id, coachType, organization);

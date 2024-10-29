@@ -32,7 +32,7 @@ module.exports = {
         allowNull: true
       },
       role: {
-        type: Sequelize.ENUM('coach', 'parent', 'user', 'admin'),
+        type: Sequelize.ENUM('coach', 'parent', 'user', 'admin', 'student'),
         allowNull: false
       },
       contactNumber: {
