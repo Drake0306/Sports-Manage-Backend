@@ -4,6 +4,7 @@ require("dotenv").config();
 const { User, userDetails, Coach, Organization, SportsList } = require("../models"); // Updated imports
 
 const ACTIVE_STATUS = 'active';
+const saltRounds = 10;
 
 const getUserProfile = (req, res) => {
   res.send('User profile data');
@@ -139,8 +140,56 @@ const getUserList = async (req, res) => {
   }
 };
 
+
+const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !oldPassword || !newPassword) {
+    return res.status(400).json({
+      error: true,
+      message: "Authorization token, old password, and new password are required"
+    });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const email = decoded.email;
+
+    // Find the user by email
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: true, message: "User not found" });
+    }
+
+    // Check if old password matches the current password
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordMatch) {
+      return res.status(400).json({ error: true, message: "Old password is incorrect" });
+    }
+
+    // Hash the new password using bcrypt
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update user's password with the new hashed password
+    user.password = hashedPassword;
+
+    // Save the updated user record
+    await user.save();
+
+    res.json({ error: false, success: true, message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Error in changePassword:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+
+
 module.exports = {
   getUserProfile,
+  changePassword,
   updateUserProfile,
   sportsList,
   getUserList

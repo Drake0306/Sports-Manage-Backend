@@ -1,4 +1,4 @@
-const { CoachTeam, User, userDetails, CoachAnnouncement } = require("../models");
+const { CoachTeam, FeatureRequest, User, userDetails, CoachAnnouncement, SportsList } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');
@@ -149,9 +149,6 @@ const updateCoachProfile = async (req, res) => {
 };
 
 const createCoachTeam = async (req, res) => {
-
-
-  console.log(req.body)
   try {
     // Extract token and decode it
     const token = req.headers.authorization.split(" ")[1];
@@ -286,14 +283,96 @@ const listAnnouncement = async (req, res) => {
   }
 };
 
+const featureBug = async (req, res) => {
+  try {
+    // Extract and verify the token
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+    const decodedToken = jwt.verify(token, secret);
+
+    // Check if user has permission (adjust role if necessary)
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied" });
+    }
+
+    // Extract parameters from req.body
+    const { featureName, featureDesc, featurePriority, requestFor } = req.body; // Include requestFor
+    const featureFile = req.file ? req.file.path : null; // Get file path if a file is uploaded
+
+    // Create a new feature request
+    const newFeatureRequest = await FeatureRequest.create({
+      name: featureName,
+      desc: featureDesc,
+      file: featureFile,
+      priority: featurePriority,
+      status: 'active', // Default status for a new feature request
+      requestFor, // Add requestFor to the request
+      userId: decodedToken.id // Map userId from the decoded token
+    });
+
+    // Respond with the created feature request data
+    res.status(201).json({
+      error: false,
+      message: "Feature request created successfully",
+      featureRequest: newFeatureRequest
+    });
+  } catch (error) {
+    console.error("Error creating feature request:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const teamListing = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Fetch the teams for the coach based on coachId
+    const teams = await CoachTeam.findAll({
+      where: { coachId: decodedToken.id }, // Ensure you're using the correct ID from the token
+      attributes: ['id','teamName', 'teamLogo', 'teamCode', 'teamColor'], // Only select the columns you need
+      include: [
+        {
+          model: SportsList, // Join with the SportsList model
+          as: 'sportDetails', // This should match the alias in your association
+          attributes: [ 'sportName', 'sportIcon'], // Select the necessary fields from the SportsList
+        },
+      ],
+    });
+
+    // Check if any teams are found
+    if (teams.length === 0) {
+      return res.status(404).json({ error: false, message: "No teams found for this coach" });
+    }
+
+    // Respond with the list of teams including sport details
+    res.json({ error: false, teams });
+
+  } catch (error) {
+    console.error("Error fetching teams:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
 
 
 
 module.exports = {
   getCoachData,
+  teamListing,
   getCoachProfile,
   updateCoachProfile,
   upload,
+  featureBug,
   createAnnouncement,
   listAnnouncement,
   createCoachTeam
