@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d7f2ade4-9af5-4a70-8b10-fc2e80e6463d",
+		"_postman_id": "3e246583-c537-49f6-9c92-4879a8cefda7",
 		"name": "Motiveteam",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "2775705"
@@ -22,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "\r\n{\r\n  \"firstname\": \"Raj\",\r\n  \"lastname\": \"AdvaDigital\",\r\n  \"email\": \"nik.advsgit22al@gmail.com\",\r\n  \"username\": \"Nidka\",\r\n  \"organization\": 1,\r\n  \"coachType\": 1,\r\n  \"password\": \"Nitk2dh\",\r\n  \"role\": \"coach\",\r\n  \"phoneNumber\": \"+918755013890\",\r\n  \"dateOfBirth\": \"2024-10-12\",\r\n  \"status\": \"active\"\r\n}",
+							"raw": "\r\n{\r\n  \"firstname\": \"Raj\",\r\n  \"lastname\": \"AdvaDigital\",\r\n  \"email\": \"nik@yopmail.com\",\r\n  \"username\": \"Nidka\",\r\n  \"organization\": 1,\r\n  \"coachType\": 1,\r\n  \"password\": \"Nik@12345\",\r\n  \"role\": \"coach\",\r\n  \"phoneNumber\": \"+918755013890\",\r\n  \"dateOfBirth\": \"2024-10-12\",\r\n  \"status\": \"active\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -42,175 +42,6 @@
 					"response": []
 				},
 				{
-					"name": "chat_text_encription",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"text\": \"Hello, this is a test message!\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}chat/test-encryption",
-							"host": [
-								"{{baseUrl}}chat"
-							],
-							"path": [
-								"test-encryption"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "chat_create_chatroom",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"userPhone\": \"+917903826151\",\n    \"receiverPhone\": \"+1234567891\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}chat/room/",
-							"host": [
-								"{{baseUrl}}chat"
-							],
-							"path": [
-								"room",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "chat_message",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"roomId\": \"+1234567891-+917903826151\",\n    \"senderPhone\": \"+917903826151\",\n    \"text\": \"Hello, this is a test message!\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}chat/message/",
-							"host": [
-								"{{baseUrl}}chat"
-							],
-							"path": [
-								"message",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "chat_history",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"roomId\": \"+1234567891-+917903826151\",\n    \"senderPhone\": \"+917903826151\",\n    \"text\": \"Hello, this is a test message!\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}chat/history/+1234567891-+917903826151",
-							"host": [
-								"{{baseUrl}}chat"
-							],
-							"path": [
-								"history",
-								"+1234567891-+917903826151"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "chat_message_statuis",
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "default"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"delivered\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}chat/message/07d3b9a3-bb27-4de6-88c9-35e90eadf2e5/status/",
-							"host": [
-								"{{baseUrl}}chat"
-							],
-							"path": [
-								"message",
-								"07d3b9a3-bb27-4de6-88c9-35e90eadf2e5",
-								"status",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "login",
 					"request": {
 						"method": "POST",
@@ -223,7 +54,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"sohan@yopmail.com\",\r\n  \"password\": \"Demo@123\"\r\n}\r\n"
+							"raw": "{\r\n  \"email\": \"coach@yopmail.com\",\r\n  \"password\": \"Coach@123\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}auth/login",
@@ -391,7 +222,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"abcde@yopmail.com\",\r\n  \"otp\": \"879326\"\r\n}",
+							"raw": "{\r\n  \"email\": \"abcde@yopmail.com\",\r\n  \"otp\": \"5386\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -411,13 +242,13 @@
 					"response": []
 				},
 				{
-					"name": "New Request",
+					"name": "change-password",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"abcde@yopmail.com\",\r\n  \"password\": \"newpassword123\"\r\n}\r\n",
+							"raw": "{\r\n  \"email\": \"acb@yopmail.com\",\r\n  \"password\": \"Newcoach@123\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -435,6 +266,144 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "chat_text_encription",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"Hello, this is a test message!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/test-encryption",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"test-encryption"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_create_chatroom",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userPhone\": \"+917903826151\",\r\n    \"receiverPhone\": \"+1234567891\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/room/",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"room",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roomId\": \"+1234567891-+917903826151\",\r\n    \"senderPhone\": \"+917903826151\",\r\n    \"text\": \"Hello, this is a test message!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/message",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"message"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_history",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roomId\": \"+1234567891-+917903826151\",\r\n    \"senderPhone\": \"+917903826151\",\r\n    \"text\": \"Hello, this is a test message!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/history/+1234567891-+917903826151",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"history",
+								"+1234567891-+917903826151"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chat_message_status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"delivered\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}chat/message/07d3b9a3-bb27-4de6-88c9-35e90eadf2e5/status/",
+							"host": [
+								"{{baseUrl}}chat"
+							],
+							"path": [
+								"message",
+								"07d3b9a3-bb27-4de6-88c9-35e90eadf2e5",
+								"status",
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -448,19 +417,16 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJ1c2VyQHlvcG1haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MjY1MDA0NDAsImV4cCI6MTcyNjUwNDA0MH0.W7gc76R5WhyM5oV-0ojY2m-RzaO5jAxWnzOqonTSxlg",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJuZXdjb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImlhdCI6MTcyOTY2MTMyNSwiZXhwIjoxNzI5NjY0OTI1fQ.OTJE_Vix3Cay1Qpjjrv7pP2FptadAWL2zHEEU1278nM",
 								"type": "default"
 							}
 						],
 						"url": {
-							"raw": "http://localhost:3000/user/profile",
-							"protocol": "http",
+							"raw": "{{baseUrl}}user/profile",
 							"host": [
-								"localhost"
+								"{{baseUrl}}user"
 							],
-							"port": "3000",
 							"path": [
-								"user",
 								"profile"
 							]
 						}
@@ -504,6 +470,62 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "sports-listing",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJuaWtAeW9wbWFpbC5jb20iLCJyb2xlIjoiY29hY2giLCJpYXQiOjE3MzAxNzkwNTgsImV4cCI6MTczMDE4MjY1OH0.tvNo778118YM9DXAaUbUZMCCREtPA1NU1Qafma6UsT8",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}user/sports/listing",
+							"host": [
+								"{{baseUrl}}user"
+							],
+							"path": [
+								"sports",
+								"listing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change-password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwMjU3NDEzLCJleHAiOjE3MzAyNjEwMTN9.iBaGyRutqC2CN0VNaWsume0NYDzd7Id5smOpAI0MA7o",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldPassword\": \"Coach@12345\",\r\n  \"newPassword\": \"Coach@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}user/change-password",
+							"host": [
+								"{{baseUrl}}user"
+							],
+							"path": [
+								"change-password"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -531,6 +553,298 @@
 							"path": [
 								"parent",
 								"data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Coach",
+			"item": [
+				{
+					"name": "edit-profile",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJBY2JAeW9wbWFpbC5jb20iLCJyb2xlIjoiY29hY2giLCJpYXQiOjE3Mjk3NTgwNDUsImV4cCI6MTcyOTc2MTY0NX0.clyx9LGRlVYOi_0zyR4aEGlGefrFh8ozZ528pCBT6Vs",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}coach/profile",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJuZXdjb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImlhdCI6MTcyOTY3Mzc3OSwiZXhwIjoxNzI5Njc3Mzc5fQ.iIxn06G_rqrQe4wiSotgb0g1kGKXd1NDIpED6V4991M",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "firstname",
+									"value": "test",
+									"type": "text"
+								},
+								{
+									"key": "lastname",
+									"value": "testing",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "testusernam",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "teest@yopmail.com",
+									"type": "text"
+								},
+								{
+									"key": "phoneNumber",
+									"value": "+918755013890",
+									"type": "text"
+								},
+								{
+									"key": "coachTypeId",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "userImage",
+									"type": "file",
+									"src": "/C:/Users/acer/OneDrive - eTEAM Info Services Private Limited/Pictures/Screenshots/Screenshot 2024-10-22 223104.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}coach/profile/update",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"profile",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-team",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJuaWtAeW9wbWFpbC5jb20iLCJyb2xlIjoiY29hY2giLCJ1c2VybmFtZSI6Ik5pZGthIiwiaWF0IjoxNzMwMDg5MDQ2LCJleHAiOjE3MzAwOTI2NDZ9.4GsGVhQzFv53DmwjLxM_gKryAFMQUb5bfRM0ziiYPbI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "teamName",
+									"value": "custom team",
+									"type": "text"
+								},
+								{
+									"key": "teamCode",
+									"value": "sd34d",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"type": "text"
+								},
+								{
+									"key": "teamLogo",
+									"type": "file",
+									"src": "/C:/Users/acer/OneDrive - eTEAM Info Services Private Limited/Pictures/Screenshots/Screenshot 2024-10-24 201444.png"
+								},
+								{
+									"key": "teamColor",
+									"value": "red",
+									"type": "text"
+								},
+								{
+									"key": "sport",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}coach/team",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"team"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "announcement",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJuaWtAeW9wbWFpbC5jb20iLCJyb2xlIjoiY29hY2giLCJ1c2VybmFtZSI6Ik5pZGthIiwiaWF0IjoxNzMwMDg5MDQ2LCJleHAiOjE3MzAwOTI2NDZ9.4GsGVhQzFv53DmwjLxM_gKryAFMQUb5bfRM0ziiYPbI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"announcement\": \"This is a new announcement for the team.\",\r\n  \"status\": \"active\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}coach/announcements",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"announcements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "announcement-listing",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJuaWtAeW9wbWFpbC5jb20iLCJyb2xlIjoiY29hY2giLCJpYXQiOjE3MzAwOTYzMjgsImV4cCI6MTczMDA5OTkyOH0.L4ohyURi78Mxs0FdHtYSQkxX1E6TOQGFcObzEH_uZrM",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}coach/announcement/listing",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"announcement",
+								"listing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "feature-bug",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwMjY4MTUzLCJleHAiOjE3MzAyNzE3NTN9.4QwsQdwmjRa8Ibsz_bEDS3W36XYshZn9Gb3QdazjN84",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "featureName",
+									"value": "smpel sdfsdfdsf",
+									"type": "text"
+								},
+								{
+									"key": "featureDesc",
+									"value": "customtest descriptino testingsdfsdfsdf",
+									"type": "text"
+								},
+								{
+									"key": "featurePriority",
+									"value": "high",
+									"type": "text"
+								},
+								{
+									"key": "featureFile",
+									"type": "file",
+									"src": "/C:/Users/acer/OneDrive - eTEAM Info Services Private Limited/Pictures/Screenshots/Screenshot 2024-10-29 143513.png"
+								},
+								{
+									"key": "requestFor",
+									"value": "bug",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}coach/feature-bug",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"feature-bug"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "team-listing",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwMjYwNjA0LCJleHAiOjE3MzAyNjQyMDR9.arYVsKbbavhDqMSzIpqHvHkqtirgY4e3iHSMoaHBj04",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}coach/fetch/teams",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"fetch",
+								"teams"
 							]
 						}
 					},
