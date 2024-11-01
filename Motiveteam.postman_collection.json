@@ -526,6 +526,39 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "join-team",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwNDM0OTIzLCJleHAiOjE3MzA0Mzg1MjN9.0rU0VYh0iWZlEUP9C4474q0yqz7WNdx9iWu8qx20DfE",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"teamCode\": \"156366\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}user/join/team",
+							"host": [
+								"{{baseUrl}}user"
+							],
+							"path": [
+								"join",
+								"team"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -564,7 +597,7 @@
 			"name": "Coach",
 			"item": [
 				{
-					"name": "edit-profile",
+					"name": "coach-profile",
 					"request": {
 						"auth": {
 							"type": "bearer"
@@ -573,7 +606,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJBY2JAeW9wbWFpbC5jb20iLCJyb2xlIjoiY29hY2giLCJpYXQiOjE3Mjk3NTgwNDUsImV4cCI6MTcyOTc2MTY0NX0.clyx9LGRlVYOi_0zyR4aEGlGefrFh8ozZ528pCBT6Vs",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwNDM4ODE3LCJleHAiOjE3MzA0NDI0MTd9.BYgzHhoTAmJS56o7MmYODvLK-Q6KBgJ5KXWJVnENjv8",
 								"type": "text"
 							}
 						],
