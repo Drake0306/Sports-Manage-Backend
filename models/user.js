@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       User.hasOne(models.userDetails, { foreignKey: 'userId', onDelete: 'CASCADE' });
+      User.hasMany(models.JoinedTeamData, { foreignKey: 'userId', as: 'joinedTeams' }); 
 
     }
   }

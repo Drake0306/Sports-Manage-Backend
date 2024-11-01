@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const { User, userDetails, Coach, Organization, SportsList } = require("../models"); // Updated imports
-
+const { User, userDetails, Coach,CoachTeam, Organization, SportsList, JoinedTeamData } = require("../models"); // Updated imports
+const { Op } = require('sequelize'); // Add this line to import Sequelize operators
 const ACTIVE_STATUS = 'active';
 const saltRounds = 10;
 
@@ -141,6 +141,105 @@ const getUserList = async (req, res) => {
 };
 
 
+const joinTeam = async (req, res) => {
+  try {
+    // Extract token from the authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "Token missing from header" });
+    }
+
+    // Verify and decode the JWT token to get userId
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET); // Use your JWT secret here
+    const userId = decodedToken.id;
+
+    // Extract teamCode from the request body
+    const { teamCode } = req.body; // Get teamCode from the request body
+
+    // Check if teamCode is provided
+    if (!teamCode) {
+      return res.status(400).json({ error: true, message: "Team code is required" });
+    }
+
+    // Find the CoachTeam record with the given teamCode
+    const team = await CoachTeam.findOne({ where: { teamCode } });
+    if (!team) {
+      return res.status(404).json({ error: true, message: "Team not found" });
+    }
+
+    // Check if the user already has an entry with the same teamId
+    const existingEntry = await JoinedTeamData.findOne({
+      where: { userId, teamId: team.id }
+    });
+
+    if (existingEntry) {
+      // If userId and teamId both exist, update status to active
+      existingEntry.status = 'active';
+      await existingEntry.save(); // Save the active status
+
+      // Update other entries for the same userId to inactive
+      await JoinedTeamData.update(
+        { status: 'inactive' },
+        { where: { userId, teamId: { [Op.ne]: team.id } } } // Update only if teamId is different
+      );
+
+      return res.status(200).json({
+        error: false,
+        message: "Successfully updated team entry to active, other entries are now inactive",
+        data: existingEntry
+      });
+    }
+
+    // If the user already exists with a different teamId
+    const differentTeamEntry = await JoinedTeamData.findOne({
+      where: { userId, teamId: { [Op.ne]: team.id } } // Check for any different teamId
+    });
+
+    if (differentTeamEntry) {
+      // Update the status of the existing entry to inactive
+      differentTeamEntry.status = 'inactive';
+      await differentTeamEntry.save(); // Save the inactive status
+      
+      // Now, insert a new record for the userId with the new teamId
+      const newJoinedTeam = await JoinedTeamData.create({
+        userId,
+        teamId: team.id,
+        status: 'active' // New entry status
+      });
+
+      // Return success response for new entry
+      return res.status(201).json({
+        error: false,
+        message: "User was already in a different team; joined new team successfully",
+        data: newJoinedTeam
+      });
+    }
+
+    // Insert new record in joinedTeamData if no previous entries exist
+    const joinedTeam = await JoinedTeamData.create({
+      userId,
+      teamId: team.id,
+      status: 'active' // Default status for new entry
+    });
+
+    // Return success response for new record
+    res.status(201).json({
+      error: false,
+      message: "Successfully joined team",
+      data: joinedTeam
+    });
+  } catch (error) {
+    console.error("Error joining team:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+
 const changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const authHeader = req.headers.authorization;
@@ -192,5 +291,6 @@ module.exports = {
   changePassword,
   updateUserProfile,
   sportsList,
-  getUserList
+  getUserList,
+  joinTeam
 };

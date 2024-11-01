@@ -1,4 +1,4 @@
-const { CoachTeam, FeatureRequest, User, userDetails, CoachAnnouncement, SportsList } = require("../models");
+const { CoachTeam, FeatureRequest, User, userDetails, CoachAnnouncement, SportsList, JoinedTeamData } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');
@@ -46,6 +46,19 @@ const getCoachProfile = async (req, res) => {
         {
           model: userDetails,
           required: true // Ensure userDetails are found
+        },
+        {
+          model: JoinedTeamData, // Include JoinedTeamData model
+          as: 'joinedTeams', // Use the alias defined in the User model
+          where: { status: 'active' }, // Filter for active joined teams
+          required: false, // This allows for coaches without active teams
+          include: [ // Include CoachTeam model based on the teamId in JoinedTeamData
+            {
+              model: CoachTeam,
+              as: 'team', // This should match the alias defined in JoinedTeamData
+              required: false // Allow for teams that might not exist
+            }
+          ]
         }
       ]
     });
@@ -61,8 +74,15 @@ const getCoachProfile = async (req, res) => {
     const profile = {
       ...coach.dataValues,
       coachTypeId: coach.userDetail.coachTypeId, // Access coachTypeId
-      coachstatus: coach.userDetail.status // Access status
+      coachStatus: coach.userDetail.status, // Access status
+      joinedTeams: coach.joinedTeams || [] // Add active joined teams to profile
     };
+    
+    // Map joined teams to include the team details
+    profile.joinedTeams = profile.joinedTeams.map(joinedTeam => ({
+      ...joinedTeam.dataValues,
+      team: joinedTeam.team || null // Add team details if available
+    }));
     
     res.json({ error: false, profile });
 
