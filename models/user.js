@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasOne(models.userDetails, { foreignKey: 'userId', onDelete: 'CASCADE' });
       User.hasMany(models.JoinedTeamData, { foreignKey: 'userId', as: 'joinedTeams' }); 
+      User.hasOne(models.StudentGuardian, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
     }
   }

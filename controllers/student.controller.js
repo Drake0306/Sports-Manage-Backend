@@ -1,0 +1,385 @@
+const { CoachTeam, FeatureRequest, User, userDetails, CoachAnnouncement, SportsList, StudentGuardian } = require("../models");
+const jwt = require("jsonwebtoken");
+const { secret } = require("../config/jwt.config");
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // The directory where the images will be saved
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname)); // Append file extension
+  },
+});
+
+// Create the multer instance
+const upload = multer({ storage });
+
+const getStudentData = async (req, res) => { // This function is not used
+  try {
+    // Retrieve and send coach-specific data
+    res.send("Student data");
+  } catch (error) {
+    console.error("Error fetching coach data:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const getStudentProfile = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+    
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ error: true, message: "Access denied, not a student" });
+    }
+
+    const coach = await User.findOne({
+      where: { id: decodedToken.id },
+      include: [
+        {
+          model: StudentGuardian,
+          required: true
+        }
+      ]
+    });
+
+    console.log('Coach', coach)
+    console.log('decodedToken.id', decodedToken)
+
+
+    if (!coach) {
+      return res.status(404).json({ error: true, message: "Student not found" });
+    }
+
+    if (!coach.StudentGuardian) {
+      return res.status(404).json({ error: true, message: "Student Guardian not found" });
+    }
+    
+    const profile = {
+      ...coach.dataValues,
+      coachTypeId: 0, // Access coachTypeId
+      coachstatus: coach.StudentGuardian.status // Access status
+    };
+    
+    res.json({ error: false, profile });
+
+  } catch (error) {
+    console.error("Error fetching coach profile:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const updateStudentProfile = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+    
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    const coachId = decodedToken.id;
+
+    // Extract the incoming data from the request body
+    const { firstname, lastname, username, email, phoneNumber, coachTypeId } = req.body;
+
+    // Handle the uploaded userImage
+    let userImage = req.file ? req.file.path : null; // Save the image path if available
+
+    console.log('req.body', req.body)
+    // Update the User model
+    const updatedUser = await User.update(
+      {
+        firstname,
+        lastname,
+        username,
+        email,
+        phoneNumber,
+        userImage, // Save the image path in the user model
+      },
+      {
+        where: { id: coachId },
+      }
+    );
+
+    if (!updatedUser[0]) {
+      return res.status(404).json({ error: true, message: "User not found or no changes made" });
+    }
+
+    // Optionally, update additional user details if needed
+    // await userDetails.update(
+    //   {
+    //     coachTypeId,
+    //     status: "active",
+    //   },
+    //   {
+    //     where: { userId: coachId },
+    //   }
+    // );
+
+    // Fetch updated profile to send back to client
+
+    const updatedStudent = await User.findOne({
+      where: { id: coachId },
+      include: [
+        {
+          model: StudentGuardian,
+          required: true,
+        },
+      ],
+    });
+
+    const profile = {
+      ...updatedStudent.dataValues,
+      coachTypeId: 0,
+      coachstatus: updatedStudent.StudentGuardian.status,
+      userImage: updatedStudent.userImage, // Include the updated image path in the response
+    };
+
+    res.json({ error: false, message: "Profile updated successfully", profile });
+  } catch (error) {
+    console.error("Error updating coach profile:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const createStudentTeam = async (req, res) => {
+  try {
+    // Extract token and decode it
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Fetch coachId from the decoded token
+    const coachId = decodedToken.id; // Assuming your token contains the user ID
+
+    // Extract the incoming data from the request body
+    const { teamName, teamCode, status, sport, teamColor } = req.body; // Include sport and teamColor
+    const teamLogo = req.file ? req.file.path : null; // Save team logo path if available
+
+    // Insert data into coachTeam table
+    const newTeam = await StudentTeam.create({
+      teamName,
+      teamCode,
+      teamLogo, // Save logo path to the teamLogo column
+      status,
+      sport, // Include sport ID from the request body
+      teamColor, // Include team color from the request body
+      coachId, // Include coachId from the token
+    });
+
+    res.json({
+      error: false,
+      message: "Team created successfully",
+      team: newTeam
+    });
+  } catch (error) {
+    console.error("Error creating coach team:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const createAnnouncement = async (req, res) => {
+
+  try {
+    // Extract token from the authorization header
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    // Verify the token and decode it
+    const decodedToken = jwt.verify(token, secret);
+    
+    // Check if the user is a coach
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Extract the incoming data from the request body
+    const { announcement, status } = req.body;
+    const coachId = decodedToken.id; // Assuming the coachId is stored in the token
+
+    // Create the announcement in the database
+    const newAnnouncement = await StudentAnnouncement.create({
+      coachId,       // Map coachId from the decoded token
+      announcement,  // Announcement text
+      status         // Status (active/inactive)
+    });
+
+    // Respond with success message and the created announcement
+    res.status(201).json({
+      error: false,
+      message: "Announcement created successfully",
+      announcement: newAnnouncement
+    });
+  } catch (error) {
+    console.error("Error creating announcement:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const listAnnouncement = async (req, res) => {
+  try {
+    // Extract token from the authorization header
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    // Verify the token and decode it
+    const decodedToken = jwt.verify(token, secret);
+    
+    // Check if the user is a coach
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Extract coachId from the decoded token
+    const coachId = decodedToken.id; // Assuming the coachId is stored in the token
+
+    // Fetch announcements for the specific coach from the database
+    const announcements = await StudentAnnouncement.findAll({
+      // where: { coachId }, // Filter announcements by coachId
+      order: [['createdAt', 'DESC']], // Optional: Order by creation date
+      include: [
+        {
+          model: User,
+          as: 'coach', // This should match the alias defined in the association
+          attributes: ['username','role'] // Only fetch the username field
+        }
+      ]
+    });
+
+    // Map the results to include the coach's username
+    const formattedAnnouncements = announcements.map(announcement => ({
+      id: announcement.id,
+      coachId: announcement.coachId,
+      username: announcement.coach.username,
+      role:announcement.coach.role, // Get the username from the included User
+      announcement: announcement.announcement,
+      createdAt: announcement.createdAt // Include any other fields as needed
+    }));
+
+    // Respond with the list of announcements
+    res.status(200).json({
+      error: false,
+      announcements: formattedAnnouncements // Return the formatted announcements
+    });
+  } catch (error) {
+    console.error("Error fetching announcements:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const featureBug = async (req, res) => {
+  try {
+    // Extract and verify the token
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+    const decodedToken = jwt.verify(token, secret);
+
+    // Check if user has permission (adjust role if necessary)
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ error: true, message: "Access denied" });
+    }
+
+    // Extract parameters from req.body
+    const { featureName, featureDesc, featurePriority, requestFor } = req.body; // Include requestFor
+    const featureFile = req.file ? req.file.path : null; // Get file path if a file is uploaded
+
+    // Create a new feature request
+    const newFeatureRequest = await FeatureRequest.create({
+      name: featureName,
+      desc: featureDesc,
+      file: featureFile,
+      priority: featurePriority,
+      status: 'active', // Default status for a new feature request
+      requestFor, // Add requestFor to the request
+      userId: decodedToken.id // Map userId from the decoded token
+    });
+
+    // Respond with the created feature request data
+    res.status(201).json({
+      error: false,
+      message: "Feature request created successfully",
+      featureRequest: newFeatureRequest
+    });
+  } catch (error) {
+    console.error("Error creating feature request:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+const teamListing = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+
+    if (decodedToken.role !== "student") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Fetch the teams for the coach based on coachId
+    const teams = await StudentTeam.findAll({
+      where: { coachId: decodedToken.id }, // Ensure you're using the correct ID from the token
+      attributes: ['id','teamName', 'teamLogo', 'teamCode', 'teamColor'], // Only select the columns you need
+      include: [
+        {
+          model: SportsList, // Join with the SportsList model
+          as: 'sportDetails', // This should match the alias in your association
+          attributes: [ 'sportName', 'sportIcon'], // Select the necessary fields from the SportsList
+        },
+      ],
+    });
+
+    // Check if any teams are found
+    if (teams.length === 0) {
+      return res.status(404).json({ error: false, message: "No teams found for this coach" });
+    }
+
+    // Respond with the list of teams including sport details
+    res.json({ error: false, teams });
+
+  } catch (error) {
+    console.error("Error fetching teams:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+
+
+module.exports = {
+  getStudentData,
+  teamListing,
+  getStudentProfile,
+  updateStudentProfile,
+  upload,
+  featureBug,
+  createAnnouncement,
+  listAnnouncement,
+  createStudentTeam
+};
