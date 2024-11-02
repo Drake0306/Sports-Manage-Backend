@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "1054fda5-fe4c-40e8-a49a-4ba7393515a1",
+		"_postman_id": "be20d882-e15b-489e-b151-6c1cd0660f31",
 		"name": "Motiveteam",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "15446770"
+		"_exporter_id": "2775705"
 	},
 	"item": [
 		{
@@ -54,7 +54,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"Keath@gmail.com\",\r\n  \"password\": \"sam@123\"\r\n}\r\n"
+							"raw": "{\r\n  \"email\": \"parent1@yopmail.com\",\r\n  \"password\": \"Coach@123\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}auth/login",
@@ -590,6 +590,30 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "fetch-childrens",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiZW1haWwiOiJQYXJlbnQxQHlvcG1haWwuY29tIiwicm9sZSI6InBhcmVudCIsImNvbnRhY3ROdW1iZXIiOiI4NzU1MDEzODkwIiwiaWF0IjoxNzMwNTI3NzAzLCJleHAiOjE3MzA1MzEzMDN9.7BXJAl1dyM02PiijR-g6hzjBgV0S82DTnMV_-gImIeA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}parent/fetch/childrens",
+							"host": [
+								"{{baseUrl}}parent"
+							],
+							"path": [
+								"fetch",
+								"childrens"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -606,7 +630,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwNDM4ODE3LCJleHAiOjE3MzA0NDI0MTd9.BYgzHhoTAmJS56o7MmYODvLK-Q6KBgJ5KXWJVnENjv8",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwNTI1MzMyLCJleHAiOjE3MzA1Mjg5MzJ9.ooEkkBy7oG9I32CByeJOI3STbHX7QScU2QeqhlSpoXQ",
 								"type": "text"
 							}
 						],
@@ -882,6 +906,39 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "fetch-active-team-students",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwNTI1MzMyLCJleHAiOjE3MzA1Mjg5MzJ9.ooEkkBy7oG9I32CByeJOI3STbHX7QScU2QeqhlSpoXQ",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"teamCode\":\"990301\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}coach/team/users",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"team",
+								"users"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -983,7 +1040,10 @@
 					"name": "announcement-listing",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				},
@@ -991,7 +1051,10 @@
 					"name": "feature-bug",
 					"request": {
 						"method": "POST",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				},
@@ -999,7 +1062,10 @@
 					"name": "team-listing",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				}
