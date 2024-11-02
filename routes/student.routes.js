@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth.middleware');
-const { getStudentData, getStudentProfile,updateStudentProfile, createStudentTeam, featureBug, listAnnouncement } = require('../controllers/student.controller');
+const { getStudentData, getStudentProfile,updateStudentProfile, createStudentTeam,  listAnnouncement } = require('../controllers/student.controller');
 const multer = require('multer');
 
 const router = express.Router();
@@ -21,8 +21,6 @@ router.get('/profile', authenticateToken, authorizeRole('student'), getStudentPr
 router.post('/profile/update', authenticateToken, authorizeRole('student'), upload.single('userImage'), updateStudentProfile);
 router.post('/team', authenticateToken, authorizeRole('student'), upload.single('teamLogo'), createStudentTeam); // Use createStudentTeam
 router.get('/announcement/listing',authenticateToken, authorizeRole('student'),listAnnouncement);
-router.post('/feature-bug', authenticateToken, upload.single('featureFile'), featureBug);
-
 
 
 module.exports = router;

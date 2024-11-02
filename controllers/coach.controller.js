@@ -385,6 +385,59 @@ const teamListing = async (req, res) => {
 };
 
 
+const teamUsers = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+    
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    const { teamCode } = req.body; // Assuming teamCode is part of the request body
+
+    const team = await CoachTeam.findOne({
+      where: { teamCode },
+      attributes: ['id'], // Only get the ID for the next query
+    });
+
+    if (!team) {
+      return res.status(404).json({ error: false, message: "Team not found" });
+    }
+
+    const joinedUsers = await JoinedTeamData.findAll({
+      where: { teamId: team.id },
+      attributes: ['userId'], // Get only userIds
+    });
+
+    if (joinedUsers.length === 0) {
+      return res.status(404).json({ error: false, message: "No users found for this team" });
+    }
+
+    const userIds = joinedUsers.map(joinedUser => joinedUser.userId);
+
+    const users = await User.findAll({
+      where: {
+        id: userIds,
+        role:'student',
+      },
+      attributes: { exclude: ['password'] }, // Exclude sensitive information
+    });
+
+    res.json({ error: false, users });
+
+  } catch (error) {
+    console.error("Error fetching team users:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+
+
 
 module.exports = {
   getCoachData,
@@ -393,6 +446,7 @@ module.exports = {
   updateCoachProfile,
   upload,
   featureBug,
+  teamUsers,
   createAnnouncement,
   listAnnouncement,
   createCoachTeam

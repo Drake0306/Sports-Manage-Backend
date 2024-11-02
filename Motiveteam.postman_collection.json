@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "3e246583-c537-49f6-9c92-4879a8cefda7",
+		"_postman_id": "1054fda5-fe4c-40e8-a49a-4ba7393515a1",
 		"name": "Motiveteam",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "2775705"
+		"_exporter_id": "15446770"
 	},
 	"item": [
 		{
@@ -54,7 +54,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"coach@yopmail.com\",\r\n  \"password\": \"Coach@123\"\r\n}\r\n"
+							"raw": "{\r\n  \"email\": \"Keath@gmail.com\",\r\n  \"password\": \"sam@123\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}auth/login",
@@ -534,13 +534,13 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwNDM0OTIzLCJleHAiOjE3MzA0Mzg1MjN9.0rU0VYh0iWZlEUP9C4474q0yqz7WNdx9iWu8qx20DfE",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJLZWF0aEBnbWFpbC5jb20iLCJyb2xlIjoic3R1ZGVudCIsImNvbnRhY3ROdW1iZXIiOiIrOTE3OTAzODI2MTUxIiwiaWF0IjoxNzMwNTIzODQ2LCJleHAiOjE3MzA1Mjc0NDZ9.c9wa5BBZuMp-WOFq6Enl7x2oI_ugmDYiR_wlnGsJr_M",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"teamCode\": \"156366\"\r\n}",
+							"raw": "{\r\n  \"teamCode\": \"567568\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -693,7 +693,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJuaWtAeW9wbWFpbC5jb20iLCJyb2xlIjoiY29hY2giLCJ1c2VybmFtZSI6Ik5pZGthIiwiaWF0IjoxNzMwMDg5MDQ2LCJleHAiOjE3MzAwOTI2NDZ9.4GsGVhQzFv53DmwjLxM_gKryAFMQUb5bfRM0ziiYPbI",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJTYW1AZ21haWwuY29tIiwicm9sZSI6ImNvYWNoIiwiY29udGFjdE51bWJlciI6Iis5MTU2NzM4MjkzNzgiLCJpYXQiOjE3MzA1MjM2MDMsImV4cCI6MTczMDUyNzIwM30.fehZF7y3Uk0plrmfIQ-B4snbmIX-HfIRUCGB7xAnF1M",
 								"type": "text"
 							}
 						],
@@ -707,7 +707,7 @@
 								},
 								{
 									"key": "teamCode",
-									"value": "sd34d",
+									"value": "567568",
 									"type": "text"
 								},
 								{
@@ -880,6 +880,126 @@
 								"teams"
 							]
 						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Student",
+			"item": [
+				{
+					"name": "update-profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJLZWF0aEBnbWFpbC5jb20iLCJyb2xlIjoic3R1ZGVudCIsImNvbnRhY3ROdW1iZXIiOiIrOTE3OTAzODI2MTUxIiwiaWF0IjoxNzMwNTIxOTYxLCJleHAiOjE3MzA1MjU1NjF9.CoJWpLIzU6k4vk6rIQdhdwlk4pWsCSR_Bc6XjritJyI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "firstname",
+									"value": "test",
+									"type": "text"
+								},
+								{
+									"key": "lastname",
+									"value": "testing",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "testusernam",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "Keath@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "phoneNumber",
+									"value": "+918755013890",
+									"type": "text"
+								},
+								{
+									"key": "coachTypeId",
+									"value": "2",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "userImage",
+									"type": "file",
+									"src": "/C:/Users/acer/OneDrive - eTEAM Info Services Private Limited/Pictures/Screenshots/Screenshot 2024-10-22 223104.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}student/profile/update",
+							"host": [
+								"{{baseUrl}}student"
+							],
+							"path": [
+								"profile",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "student-profile",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJLZWF0aEBnbWFpbC5jb20iLCJyb2xlIjoic3R1ZGVudCIsImNvbnRhY3ROdW1iZXIiOiIrOTE3OTAzODI2MTUxIiwiaWF0IjoxNzMwNTE4MDMzLCJleHAiOjE3MzA1MjE2MzN9.sM7AbfpLUxiPpCCCshrPX9QZlUPrEahYxnHnMWcf35s",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}student/profile",
+							"host": [
+								"{{baseUrl}}student"
+							],
+							"path": [
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "announcement-listing",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "feature-bug",
+					"request": {
+						"method": "POST",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "team-listing",
+					"request": {
+						"method": "GET",
+						"header": []
 					},
 					"response": []
 				}
