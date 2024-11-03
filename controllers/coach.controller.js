@@ -1,4 +1,4 @@
-const { CoachTeam, FeatureRequest, User, userDetails, CoachAnnouncement, SportsList, JoinedTeamData } = require("../models");
+const { CoachTeam, FeatureRequest, User, CoachResource, userDetails, CoachAnnouncement, SportsList, JoinedTeamData } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');
@@ -436,7 +436,45 @@ const teamUsers = async (req, res) => {
   }
 };
 
+const createResource = async (req, res) => {
+  try {
+    // Extract the token from the authorization header
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
 
+    // Verify the token
+    const decodedToken = jwt.verify(token, secret);
+    
+    // Ensure the role is 'coach'
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    const coachId = decodedToken.id; // Get coachId from the decoded token
+
+    // Extract the fields from the request body
+    const { finalForms, spiritShop, tickets, Dragonfly } = req.body;
+
+    // Create the resource in the coachresources table
+    const resource = await CoachResource.create({
+      finalForms, // Can be null
+      spiritShop, // Can be null
+      tickets,    // Can be null
+      Dragonfly,  // Can be null
+      status: 'active', // Default status
+      coachId      // Coach ID derived from the JWT
+    });
+
+    // Return the created resource
+    return res.status(201).json({ error: false, resource });
+    
+  } catch (error) {
+    console.error("Error creating resource:", error);
+    return res.status(500).json({ error: true, message: "Server error" });
+  }
+};
 
 
 module.exports = {
@@ -448,6 +486,7 @@ module.exports = {
   featureBug,
   teamUsers,
   createAnnouncement,
+  createResource,
   listAnnouncement,
   createCoachTeam
 };
