@@ -54,7 +54,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"parent1@yopmail.com\",\r\n  \"password\": \"Coach@123\"\r\n}\r\n"
+							"raw": "{\r\n  \"email\": \"coach@yopmail.com\",\r\n  \"password\": \"Coach@123\"\r\n}\r\n"
 						},
 						"url": {
 							"raw": "{{baseUrl}}auth/login",
@@ -935,6 +935,45 @@
 							"path": [
 								"team",
 								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-coach-resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJDb2FjaEB5b3BtYWlsLmNvbSIsInJvbGUiOiJjb2FjaCIsImNvbnRhY3ROdW1iZXIiOiIrOTE4NzU1MDEzODkwIiwiaWF0IjoxNzMwNjQyMTk4LCJleHAiOjE3MzA2NDU3OTh9.ixPHafUSMpEtihW-sjffxGtZcsJRoKaeELb8cjUESp0",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"finalForms\": null,\r\n  \"spiritShop\": \"Link to spirit shop\",\r\n  \"tickets\": null,\r\n  \"Dragonfly\": \"Link to Dragonfly\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}coach/resource",
+							"host": [
+								"{{baseUrl}}coach"
+							],
+							"path": [
+								"resource"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
 							]
 						}
 					},
