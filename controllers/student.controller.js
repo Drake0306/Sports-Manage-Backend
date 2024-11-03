@@ -249,14 +249,14 @@ const listAnnouncement = async (req, res) => {
     
     // Check if the user is a coach
     if (decodedToken.role !== "student") {
-      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+      return res.status(403).json({ error: true, message: "Access denied, not a student" });
     }
 
     // Extract coachId from the decoded token
     const coachId = decodedToken.id; // Assuming the coachId is stored in the token
 
     // Fetch announcements for the specific coach from the database
-    const announcements = await StudentAnnouncement.findAll({
+    const announcements = await CoachAnnouncement.findAll({
       // where: { coachId }, // Filter announcements by coachId
       order: [['createdAt', 'DESC']], // Optional: Order by creation date
       include: [
