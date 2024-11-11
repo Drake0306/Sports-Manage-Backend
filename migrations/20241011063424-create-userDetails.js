@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Coaches', // Reference to the Coach table
+          model: 'COACHES', // Reference to the Coach table
           key: 'id'
         },
         onUpdate: 'CASCADE',

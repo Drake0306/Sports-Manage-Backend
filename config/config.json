@@ -1,9 +1,9 @@
 {
   "development": {
     "username": "root",
-    "password": "",
-    "database": "motiveteam",
-    "host": "127.0.0.1",
+    "password": "@Mybdayis1997",
+    "database": "development",
+    "host": "172.232.96.200",
     "dialect": "mysql"
   },
   "test": {
