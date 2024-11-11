@@ -2,22 +2,22 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class userDetails extends Model {
+  class USERDETAILS extends Model {
     static associate(models) {
       // Define association with the User model
-      userDetails.belongsTo(models.User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+      USERDETAILS.belongsTo(models.USERS, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
       // Define association with the Coach model
-      userDetails.belongsTo(models.Coach, { foreignKey: 'coachTypeId', onDelete: 'CASCADE' });
+      USERDETAILS.belongsTo(models.COACH, { foreignKey: 'coachTypeId', onDelete: 'CASCADE' });
 
       // Define association with the Organization model
-      userDetails.belongsTo(models.Organization, { foreignKey: 'organizationId', onDelete: 'CASCADE' });
+      USERDETAILS.belongsTo(models.ORGANIZATIONS, { foreignKey: 'organizationId', onDelete: 'CASCADE' });
 
       
     }
   }
 
-  userDetails.init({
+  USERDETAILS.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -43,9 +43,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'userDetails',
+    modelName: 'USERDETAILS',
+    tableName:'userdetails',
     timestamps: true
   });
 
-  return userDetails;
+  return USERDETAILS;
 };

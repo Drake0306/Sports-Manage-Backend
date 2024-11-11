@@ -2,18 +2,18 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class StudentGuardian extends Model {
+  class STUDENTGUARDIAN extends Model {
     static associate(models) {
       // Define associations here if needed
-      StudentGuardian.belongsTo(models.User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+      STUDENTGUARDIAN.belongsTo(models.USERS, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
 
-      StudentGuardian.belongsTo(models.Organization, { foreignKey: 'organizationId', onDelete: 'CASCADE' });
+      STUDENTGUARDIAN.belongsTo(models.ORGANIZATIONS, { foreignKey: 'organizationId', onDelete: 'CASCADE' });
 
     }
   }
   
-  StudentGuardian.init({
+  STUDENTGUARDIAN.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users', // References the Users table
+        model: 'USERS', // References the Users table
         key: 'id'
       }
     },
@@ -59,9 +59,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'StudentGuardian',
+    modelName: 'STUDENTGUARDIAN',
+    tableName:'studentguardian',
     timestamps: true // Enable createdAt and updatedAt fields
   });
 
-  return StudentGuardian;
+  return STUDENTGUARDIAN;
 };

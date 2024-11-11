@@ -2,18 +2,18 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class FeatureRequest extends Model {
+  class FEATUREREQUEST extends Model {
     static associate(models) {
       // Define associations here
       // For example, if you want to associate FeatureRequest with User
-      FeatureRequest.belongsTo(models.User, {
+      FEATUREREQUEST.belongsTo(models.USERS, {
         foreignKey: 'userId', // The foreign key in the featureRequest table
         as: 'user' // Alias for the association
       });
     }
   }
 
-  FeatureRequest.init({
+  FEATUREREQUEST.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -54,16 +54,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'users', // Ensure this matches the actual table name for users
+        model: 'USERS', // Ensure this matches the actual table name for users
         key: 'id' // Key in the referenced table
       }
     }
   }, {
     sequelize,
-    modelName: 'FeatureRequest',
-    tableName:'FeatureRequest',
+    modelName: 'FEATUREREQUEST',
+    tableName:'featurerequest',
     timestamps: true // Enable timestamps
   });
 
-  return FeatureRequest;
+  return FEATUREREQUEST;
 };

@@ -2,21 +2,21 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class CoachResource extends Model {
+  class COACHRESOURCE extends Model {
     /**
      * Define associations here.
      * This method is not a part of Sequelize lifecycle.
      */
     static associate(models) {
       // Define association with the User model
-      CoachResource.belongsTo(models.User, {
+      COACHRESOURCE.belongsTo(models.USERS, {
         foreignKey: 'coachId',
         as: 'coach'
       });
     }
   }
 
-  CoachResource.init(
+  COACHRESOURCE.init(
     {
       finalForms: {
         type: DataTypes.TEXT,
@@ -43,18 +43,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'users',
+          model: 'USERS',
           key: 'id'
         }
       }
     },
     {
       sequelize,
-      modelName: 'CoachResource',
-      tableName: 'coachresources', // Explicitly specify table name if different
+      modelName: 'COACHRESOURCE',
+      tableName: 'coachresource', // Explicitly specify table name if different
       timestamps: true // Enable timestamps if using createdAt and updatedAt
     }
   );
 
-  return CoachResource;
+  return COACHRESOURCE;
 };

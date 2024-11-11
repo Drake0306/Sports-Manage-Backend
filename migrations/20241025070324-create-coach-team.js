@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('coachTeam', {
+    await queryInterface.createTable('COACHTEAM', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -26,7 +26,7 @@ module.exports = {
         type: Sequelize.INTEGER, // Store the ID of the sport from the SportsList table
         allowNull: false,
         references: {
-          model: 'sportsList', // Ensure the model name matches the table name
+          model: 'SPORTSLIST', // Ensure the model name matches the table name
           key: 'id' // Key in the referenced table
         },
         onUpdate: 'CASCADE', // Handles updates in the referenced table
@@ -36,7 +36,7 @@ module.exports = {
         type: Sequelize.INTEGER, // Assuming coachId will store the ID of the user
         allowNull: false, // Not nullable
         references: {
-          model: 'users', // Ensure the model name matches the user table name
+          model: 'USERS', // Ensure the model name matches the user table name
           key: 'id' // Key in the referenced table
         },
         onUpdate: 'CASCADE', // Optional: handles updates in the referenced table
@@ -65,6 +65,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('coachTeam');
+    await queryInterface.dropTable('COACHTEAM');
   }
 };

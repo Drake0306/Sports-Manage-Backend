@@ -2,13 +2,13 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class Coach extends Model {
+  class COACH extends Model {
     static associate(models) {
       // Define associations here if needed
     }
   }
 
-  Coach.init({
+  COACH.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -26,9 +26,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'Coach',
+    modelName: 'COACH',
+    tableName:'coaches',
     timestamps: true // Enable createdAt and updatedAt
   });
 
-  return Coach;
+  return COACH;
 };

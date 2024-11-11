@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('messages', {
+    await queryInterface.createTable('MESSAGES', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -14,7 +14,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
         references: {
-          model: 'chat_rooms',
+          model: 'CHATROOMS',
           key: 'room_id'
         },
         onUpdate: 'CASCADE',
@@ -43,13 +43,13 @@ module.exports = {
     });
 
     // Add indexes
-    await queryInterface.addIndex('messages', ['room_id']);
-    await queryInterface.addIndex('messages', ['sender_phone']);
-    await queryInterface.addIndex('messages', ['created_at']);
-    await queryInterface.addIndex('messages', ['status']);
+    await queryInterface.addIndex('MESSAGES', ['room_id']);
+    await queryInterface.addIndex('MESSAGES', ['sender_phone']);
+    await queryInterface.addIndex('MESSAGES', ['created_at']);
+    await queryInterface.addIndex('MESSAGES', ['status']);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('messages');
+    await queryInterface.dropTable('MESSAGES');
   }
 };

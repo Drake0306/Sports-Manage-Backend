@@ -1,5 +1,5 @@
 const socketIO = require('socket.io');
-const { ChatRoom, Message } = require('../models');
+const { CHATROOMS,MESSAGES } = require('../models');
 const EncryptionService = require('./encryptionService');
 
 class ChatService {
@@ -31,7 +31,7 @@ class ChatService {
                     }
 
                     // Verify room exists and user is a participant
-                    const room = await ChatRoom.findOne({
+                    const room = await CHATROOMS.findOne({
                         where: { roomId }
                     });
 
@@ -54,7 +54,7 @@ class ChatService {
                     });
 
                     // Fetch messages for the room
-                    const messages = await Message.findAll({
+                    const messages = await MESSAGES.findAll({
                         where: { roomId: room.roomId },
                         order: [['createdAt', 'ASC']]
                     });
@@ -97,7 +97,7 @@ class ChatService {
                     console.log('Processing message in room:', roomId, 'from:', userPhone);
             
                     // Find the room first
-                    const room = await ChatRoom.findOne({
+                    const room = await CHATROOMS.findOne({
                         where: { roomId: roomId }
                     });
             
@@ -107,7 +107,7 @@ class ChatService {
             
                     // Save message to database using roomId
                     const encryptedContent = this.encryptionService.encrypt(text);
-                    const message = await Message.create({
+                    const message = await MESSAGES.create({
                         roomId: room.roomId,  // Use the room's roomId
                         senderPhone: userPhone,
                         encryptedContent,
@@ -149,12 +149,12 @@ class ChatService {
             const [phone1, phone2] = [userPhone, receiverPhone].sort();
             const roomId = `${phone1}-${phone2}`;
 
-            let room = await ChatRoom.findOne({
+            let room = await CHATROOMS.findOne({
                 where: { roomId }
             });
 
             if (!room) {
-                room = await ChatRoom.create({
+                room = await CHATROOMS.create({
                     roomId,
                     participant1Phone: phone1,
                     participant2Phone: phone2
@@ -173,7 +173,7 @@ class ChatService {
 
     async updateMessageStatus(messageId, status) {
         try {
-            const message = await Message.findByPk(messageId);
+            const message = await MESSAGES.findByPk(messageId);
             if (message) {
                 await message.update({ status });
                 this.io.to(message.roomId).emit('messageStatus', {
@@ -190,7 +190,7 @@ class ChatService {
 
     async getMessagesForRoom(roomId) {
         try {
-            const messages = await Message.findAll({
+            const messages = await MESSAGES.findAll({
                 where: { roomId },
                 order: [['createdAt', 'ASC']]
             });

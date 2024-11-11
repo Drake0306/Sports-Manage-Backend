@@ -1,4 +1,5 @@
-const { CoachTeam, FeatureRequest, User, CoachResource, userDetails, CoachAnnouncement, SportsList, JoinedTeamData } = require("../models");
+const { COACHTEAM:CoachTeam, FEATUREREQUEST:FeatureRequest, USERS:User, COACHRESOURCE:CoachResource, 
+  USERDETAILS:userDetails, COACHANNOUNCEMENT:CoachAnnouncement, SPORTSLIST:SportsList, JOINEDTEAMDATA:JoinedTeamData } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');

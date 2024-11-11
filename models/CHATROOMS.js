@@ -1,9 +1,9 @@
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    class ChatRoom extends Model {}
+    class CHATROOMS extends Model {}
 
-    ChatRoom.init({
+    CHATROOMS.init({
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
@@ -27,10 +27,10 @@ module.exports = (sequelize) => {
         }
     }, {
         sequelize,
-        modelName: 'ChatRoom',
-        tableName: 'chat_rooms',
+        modelName: 'CHATROOMS',
+        tableName: 'chatrooms',
         underscored: true,
     });
 
-    return ChatRoom;
+    return CHATROOMS;
 };

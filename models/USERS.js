@@ -2,16 +2,15 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class USERS extends Model {
     static associate(models) {
-      User.hasOne(models.userDetails, { foreignKey: 'userId', onDelete: 'CASCADE' });
-      User.hasMany(models.JoinedTeamData, { foreignKey: 'userId', as: 'joinedTeams' }); 
-      User.hasOne(models.StudentGuardian, { foreignKey: 'userId', onDelete: 'CASCADE' });
-
+      USERS.hasOne(models.USERDETAILS, { foreignKey: 'userId', onDelete: 'CASCADE' });
+      USERS.hasMany(models.JOINEDTEAMDATA, { foreignKey: 'userId', as: 'joinedTeams' }); 
+      USERS.hasOne(models.STUDENTGUARDIAN, { foreignKey: 'userId', onDelete: 'CASCADE' });
     }
   }
   
-  User.init({
+  USERS.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -75,9 +74,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'User',
+    modelName: 'USERS',
+    tableName: 'users', // Specify the table name in uppercase
     timestamps: true // Enable createdAt and updatedAt fields
   });
 
-  return User;
+  return USERS;
 };

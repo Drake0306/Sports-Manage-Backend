@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('chat_rooms', {
+    await queryInterface.createTable('CHATROOMS', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -34,12 +34,12 @@ module.exports = {
     });
 
     // Add indexes
-    await queryInterface.addIndex('chat_rooms', ['room_id']);
-    await queryInterface.addIndex('chat_rooms', ['participant1_phone']);
-    await queryInterface.addIndex('chat_rooms', ['participant2_phone']);
+    await queryInterface.addIndex('CHATROOMS', ['room_id']);
+    await queryInterface.addIndex('CHATROOMS', ['participant1_phone']);
+    await queryInterface.addIndex('CHATROOMS', ['participant2_phone']);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('chat_rooms');
+    await queryInterface.dropTable('CHATROOMS');
   }
 };

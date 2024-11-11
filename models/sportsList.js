@@ -2,13 +2,13 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class SportsList extends Model {
+  class SPORTSLIST extends Model {
     static associate(models) {
       // Define associations here if needed
     }
   }
 
-  SportsList.init({
+  SPORTSLIST.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -31,10 +31,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'SportsList',
+    modelName: 'SPORTSLIST',
     tableName: 'sportslist', // Explicitly define the table name
     timestamps: true // Enables createdAt and updatedAt fields
   });
 
-  return SportsList;
+  return SPORTSLIST;
 };

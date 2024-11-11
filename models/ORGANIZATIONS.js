@@ -2,13 +2,13 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class Organization extends Model {
+  class ORGANIZATIONS extends Model {
     static associate(models) {
       // Define associations here if needed
     }
   }
   
-  Organization.init({
+  ORGANIZATIONS.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -41,9 +41,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'Organization',
+    modelName: 'ORGANIZATIONS',
+    tableName:'organizations',
     timestamps: true
   });
 
-  return Organization;
+  return ORGANIZATIONS;
 };

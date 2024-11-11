@@ -2,14 +2,14 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class CoachAnnouncement extends Model {
+  class COACHANNOUNCEMENT extends Model {
     static associate(models) {
       // Define associations here if needed
-      CoachAnnouncement.belongsTo(models.User, { foreignKey: 'coachId', as: 'coach' }); // Assuming your User model is defined in models/User.js
+      COACHANNOUNCEMENT.belongsTo(models.USERS, { foreignKey: 'coachId', as: 'coach' }); // Assuming your User model is defined in models/User.js
     }
   }
 
-  CoachAnnouncement.init({
+  COACHANNOUNCEMENT.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'users', // Ensure this matches your User table name
+        model: 'USERS', // Ensure this matches your User table name
         key: 'id'
       },
       onUpdate: 'CASCADE', // Update on user changes
@@ -37,10 +37,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'CoachAnnouncement',
-    tableName: 'coachAnnouncement', // Ensure this matches your migration
+    modelName: 'COACHANNOUNCEMENT',
+    tableName: 'coachannouncement', // Ensure this matches your migration
     timestamps: true // Automatically adds createdAt and updatedAt fields
   });
 
-  return CoachAnnouncement;
+  return COACHANNOUNCEMENT;
 };

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User, StudentGuardian } = require('../models'); // Adjust the path to your models as necessary
+const { USERS:User, STUDENTGUARDIAN:StudentGuardian } = require('../models'); // Adjust the path to your models as necessary
 const secret = process.env.JWT_SECRET; // Ensure to define your secret in environment variables
 
 

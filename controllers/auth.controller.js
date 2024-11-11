@@ -2,13 +2,16 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Twilio = require("twilio");
 require("dotenv").config();
+
+
 const {
-  User,
-  userDetails,
-  Coach,
-  Organization,
-  StudentGuardian,
+  USERS: User,
+  USERDETAILS:userDetails,
+  COACH:Coach,
+  ORGANIZATIONS:Organization,
+  STUDENTGUARDIAN:StudentGuardian,
 } = require("../models");
+
 const { secret } = require("../config/jwt.config");
 const twilioClient = Twilio(
   process.env.TWILIO_ACCOUNT_SID,

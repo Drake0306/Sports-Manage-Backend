@@ -2,9 +2,9 @@
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    class Message extends Model {}
+    class MESSAGES extends Model {}
 
-    Message.init({
+    MESSAGES.init({
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
@@ -15,7 +15,7 @@ module.exports = (sequelize) => {
             allowNull: false,
             field: 'room_id',
             references: {
-                model: 'chat_rooms',
+                model: 'CHATROOMS',
                 key: 'room_id'  // Reference the room_id column
             }
         },
@@ -35,10 +35,10 @@ module.exports = (sequelize) => {
         }
     }, {
         sequelize,
-        modelName: 'Message',
+        modelName: 'MESSAGES',
         tableName: 'messages',
         underscored: true,
     });
 
-    return Message;
+    return MESSAGES;
 };

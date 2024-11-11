@@ -3,10 +3,10 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class JoinedTeamData extends Model {
+  class JOINEDTEAMDATA extends Model {
     static associate(models) {
       // Define association with User
-      JoinedTeamData.belongsTo(models.User, {
+      JOINEDTEAMDATA.belongsTo(models.USERS, {
         foreignKey: 'userId',
         as: 'user',
         onDelete: 'CASCADE',
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       // Define association with CoachTeam
-      JoinedTeamData.belongsTo(models.CoachTeam, {
+      JOINEDTEAMDATA.belongsTo(models.COACHTEAM, {
         foreignKey: 'teamId',
         as: 'team',
         onDelete: 'CASCADE',
@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
 
-  JoinedTeamData.init({
+  JOINEDTEAMDATA.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'User', // Reference to User model
+        model: 'USERS', // Reference to User model
         key: 'id',
       },
       onUpdate: 'CASCADE',
@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'CoachTeam', // Reference to CoachTeam model
+        model: 'COACHTEAM', // Reference to CoachTeam model
         key: 'id',
       },
       onUpdate: 'CASCADE',
@@ -57,10 +57,10 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
-    modelName: 'JoinedTeamData',
-    tableName: 'joinedTeamData',
+    modelName: 'JOINEDTEAMDATA',
+    tableName: 'joinedteamdata',
     timestamps: true, // Enables createdAt and updatedAt fields
   });
 
-  return JoinedTeamData;
+  return JOINEDTEAMDATA;
 };

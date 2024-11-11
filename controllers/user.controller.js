@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const { User, userDetails, Coach,CoachTeam, Organization, SportsList, JoinedTeamData } = require("../models"); // Updated imports
+const { USERS:User, USERDETAILS:userDetails, COACH:Coach, COACHTEAM:CoachTeam, ORGANIZATION:Organization, SPORTSLIST:SportsList, 
+  JOINEDTEAMDATA:JoinedTeamData } = require("../models"); // Updated imports
 const { Op } = require('sequelize'); // Add this line to import Sequelize operators
 const ACTIVE_STATUS = 'active';
 const saltRounds = 10;

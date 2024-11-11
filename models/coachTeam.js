@@ -3,21 +3,21 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-  class CoachTeam extends Model {
+  class COACHTEAM extends Model {
     static associate(models) {
       // Define associations here if needed
-      CoachTeam.belongsTo(models.SportsList, {
+      COACHTEAM.belongsTo(models.SPORTSLIST, {
         foreignKey: 'sport', // This assumes the column name is 'sport'
         as: 'sportDetails', // Optional alias for the association
       });
-      CoachTeam.belongsTo(models.User, {
+      COACHTEAM.belongsTo(models.USERS, {
         foreignKey: 'coachId', // Assuming the user model has 'id' as primary key
         as: 'coachDetails', // Optional alias for the association
       });
     }
   }
 
-  CoachTeam.init({
+  COACHTEAM.init({
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false, // Ensure it is NOT NULL
       references: {
-        model: 'sportsList', // Ensure the correct table name
+        model: 'SPORTSLIST', // Ensure the correct table name
         key: 'id'
       },
       onUpdate: 'CASCADE', // Update foreign key on sportslist updates
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER, // Assuming coachId will store the ID of the user
       allowNull: false, // Not nullable
       references: {
-        model: 'users', // Ensure the model name matches the user table name
+        model: 'USERS', // Ensure the model name matches the user table name
         key: 'id' // Key in the referenced table
       },
       onUpdate: 'CASCADE', // Handles updates in the referenced table
@@ -78,10 +78,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'CoachTeam',
-    tableName: 'coachTeam', // Explicitly define the table name
+    modelName: 'COACHTEAM',
+    tableName: 'coachteam', // Explicitly define the table name
     timestamps: true // Enables createdAt and updatedAt fields
   });
 
-  return CoachTeam;
+  return COACHTEAM;
 };

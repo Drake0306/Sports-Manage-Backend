@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('featureRequest', {
+    await queryInterface.createTable('FEATUREREQUEST', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -43,7 +43,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'users', // Ensure this matches the actual table name for users
+          model: 'USERS', // Ensure this matches the actual table name for users
           key: 'id' // Key in the referenced table
         },
         onUpdate: 'CASCADE', // Handle updates in the referenced table
@@ -63,6 +63,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('featureRequest');
+    await queryInterface.dropTable('FEATUREREQUEST');
   }
 };
