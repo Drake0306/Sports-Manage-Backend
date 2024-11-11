@@ -28,7 +28,7 @@ module.exports = (sequelize) => {
     }, {
         sequelize,
         modelName: 'CHATROOMS',
-        tableName: 'chatrooms',
+        tableName: 'CHATROOMS',
         underscored: true,
     });
 

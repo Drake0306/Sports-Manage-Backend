@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'SPORTSLIST',
-    tableName: 'sportslist', // Explicitly define the table name
+    tableName: 'SPORTSLIST', // Explicitly define the table name
     timestamps: true // Enables createdAt and updatedAt fields
   });
 

@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'COACHANNOUNCEMENT',
-    tableName: 'coachannouncement', // Ensure this matches your migration
+    tableName: 'COACHANNOUNCEMENT', // Ensure this matches your migration
     timestamps: true // Automatically adds createdAt and updatedAt fields
   });
 

@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'STUDENTGUARDIAN',
-    tableName:'studentguardian',
+    tableName:'STUDENTGUARDIAN',
     timestamps: true // Enable createdAt and updatedAt fields
   });
 

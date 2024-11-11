@@ -75,7 +75,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'USERS',
-    tableName: 'users', // Specify the table name in uppercase
+    tableName: 'USERS', // Specify the table name in uppercase
     timestamps: true // Enable createdAt and updatedAt fields
   });
 

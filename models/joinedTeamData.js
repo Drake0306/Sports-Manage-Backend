@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'JOINEDTEAMDATA',
-    tableName: 'joinedteamdata',
+    tableName: 'JOINEDTEAMDATA',
     timestamps: true, // Enables createdAt and updatedAt fields
   });
 

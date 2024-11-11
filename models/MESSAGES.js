@@ -36,7 +36,7 @@ module.exports = (sequelize) => {
     }, {
         sequelize,
         modelName: 'MESSAGES',
-        tableName: 'messages',
+        tableName: 'MESSAGES',
         underscored: true,
     });
 

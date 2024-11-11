@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'COACH',
-    tableName:'coaches',
+    tableName:'COACHES',
     timestamps: true // Enable createdAt and updatedAt
   });
 

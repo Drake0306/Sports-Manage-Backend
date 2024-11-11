@@ -61,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'FEATUREREQUEST',
-    tableName:'featurerequest',
+    tableName:'FEATUREREQUEST',
     timestamps: true // Enable timestamps
   });
 
