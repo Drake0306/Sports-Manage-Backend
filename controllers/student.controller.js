@@ -56,17 +56,17 @@ const getStudentProfile = async (req, res) => {
 
 
     if (!coach) {
-      return res.status(404).json({ error: true, message: "Student not found" });
+      return res.status(200).json({ error: true, message: "Student not found" });
     }
 
-    if (!coach.StudentGuardian) {
-      return res.status(404).json({ error: true, message: "Student Guardian not found" });
+    if (!coach.STUDENTGUARDIAN) {
+      return res.status(200).json({ error: true, message: "Student Guardian not found" });
     }
     
     const profile = {
       ...coach.dataValues,
       coachTypeId: 0, // Access coachTypeId
-      coachstatus: coach.StudentGuardian.status // Access status
+      coachstatus: coach.STUDENTGUARDIAN.status // Access status
     };
     
     res.json({ error: false, profile });
@@ -144,7 +144,7 @@ const updateStudentProfile = async (req, res) => {
     const profile = {
       ...updatedStudent.dataValues,
       coachTypeId: 0,
-      coachstatus: updatedStudent.StudentGuardian.status,
+      coachstatus: updatedStudent.STUDENTGUARDIAN.status,
       userImage: updatedStudent.userImage, // Include the updated image path in the response
     };
 

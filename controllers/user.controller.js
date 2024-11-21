@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const { USERS:User, USERDETAILS:userDetails, COACH:Coach, COACHTEAM:CoachTeam, ORGANIZATION:Organization, SPORTSLIST:SportsList, 
+const { USERS:User, USERDETAILS:userDetails, COACH:Coach, COACHTEAM:CoachTeam, ORGANIZATIONS:Organization, SPORTSLIST:SportsList, 
   JOINEDTEAMDATA:JoinedTeamData } = require("../models"); // Updated imports
 const { Op } = require('sequelize'); // Add this line to import Sequelize operators
 const ACTIVE_STATUS = 'active';
@@ -69,6 +69,10 @@ const getUserList = async (req, res) => {
       include: [{
         model: userDetails,
         attributes: ['id', 'status'],
+        where: organizationId ? {
+          organizationId: organizationId,
+          status: 'active'
+        } : undefined,
         include: [
           {
             model: Coach,
@@ -76,20 +80,12 @@ const getUserList = async (req, res) => {
           },
           {
             model: Organization,
-            attributes: ['id', 'name'] // Assuming Organization model has a 'name' field
+            attributes: ['id', 'name']
           }
         ]
       }],
-      order: [['createdAt', 'DESC']] // Sort by creation date, newest first
+      order: [['createdAt', 'DESC']]
     };
-
-    // Add organization filter if provided
-    if (organizationId) {
-      queryOptions.include[0].where = {
-        organizationId: organizationId,
-        status: 'active'
-      };
-    }
 
     // Fetch users with their details
     const users = await User.findAll(queryOptions);
@@ -115,9 +111,9 @@ const getUserList = async (req, res) => {
             id: userData.userDetails.Coach.id,
             type: userData.userDetails.Coach.type
           } : null,
-          organization: userData.userDetails.Organization ? {
-            id: userData.userDetails.Organization.id,
-            name: userData.userDetails.Organization.name
+          organization: userData.userDetails.ORGANIZATIONS ? {
+            id: userData.userDetails.ORGANIZATIONS.id,
+            name: userData.userDetails.ORGANIZATIONS.name
           } : null
         } : null
       };

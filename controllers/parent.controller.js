@@ -98,19 +98,18 @@ const getParentData = (req, res) => {
   
       const decodedToken = jwt.verify(token, secret);
       
-      if (decodedToken.role !== "student") {
+      if (decodedToken.role !== "parent") {
         return res.status(403).json({ error: true, message: "Access denied, not a coach" });
       }
   
       const coachId = decodedToken.id;
   
       // Extract the incoming data from the request body
-      const { firstname, lastname, username, email, phoneNumber, coachTypeId } = req.body;
+      const { firstname, lastname, username, email, phoneNumber } = req.body;
   
       // Handle the uploaded userImage
       let userImage = req.file ? req.file.path : null; // Save the image path if available
   
-      console.log('req.body', req.body)
       // Update the User model
       const updatedUser = await User.update(
         {
@@ -125,9 +124,11 @@ const getParentData = (req, res) => {
           where: { id: coachId },
         }
       );
+
+
   
       if (!updatedUser[0]) {
-        return res.status(404).json({ error: true, message: "User not found or no changes made" });
+        return res.status(200).json({ error: true, message: "User not found or no changes made" });
       }
   
       // Optionally, update additional user details if needed
@@ -148,7 +149,7 @@ const getParentData = (req, res) => {
         include: [
           {
             model: StudentGuardian,
-            required: true,
+            required: false,
           },
         ],
       });
@@ -156,7 +157,6 @@ const getParentData = (req, res) => {
       const profile = {
         ...updatedStudent.dataValues,
         coachTypeId: 0,
-        coachstatus: updatedStudent.StudentGuardian.status,
         userImage: updatedStudent.userImage, // Include the updated image path in the response
       };
   

@@ -68,14 +68,15 @@ const getCoachProfile = async (req, res) => {
       return res.status(404).json({ error: true, message: "Coach not found" });
     }
 
-    if (!coach.userDetail) {
+    if (!coach.USERDETAIL) {
+      console.log("coach.userDetail", coach);
       return res.status(404).json({ error: true, message: "User details not found" });
     }
     
     const profile = {
       ...coach.dataValues,
-      coachTypeId: coach.userDetail.coachTypeId, // Access coachTypeId
-      coachStatus: coach.userDetail.status, // Access status
+      coachTypeId: coach.USERDETAIL.coachTypeId, // Access coachTypeId
+      coachStatus: coach.USERDETAIL.status, // Access status
       joinedTeams: coach.joinedTeams || [] // Add active joined teams to profile
     };
     
@@ -157,8 +158,8 @@ const updateCoachProfile = async (req, res) => {
 
     const profile = {
       ...updatedCoach.dataValues,
-      coachTypeId: updatedCoach.userDetail.coachTypeId,
-      coachstatus: updatedCoach.userDetail.status,
+      coachTypeId: updatedCoach.USERDETAIL.coachTypeId,
+      coachstatus: updatedCoach.USERDETAIL.status,
       userImage: updatedCoach.userImage, // Include the updated image path in the response
     };
 
@@ -407,7 +408,7 @@ const teamUsers = async (req, res) => {
     });
 
     if (!team) {
-      return res.status(404).json({ error: false, message: "Team not found" });
+      return res.status(200).json({ error: false, message: "Team not found" });
     }
 
     const joinedUsers = await JoinedTeamData.findAll({
@@ -416,7 +417,7 @@ const teamUsers = async (req, res) => {
     });
 
     if (joinedUsers.length === 0) {
-      return res.status(404).json({ error: false, message: "No users found for this team" });
+      return res.status(200).json({ error: false, message: "No users found for this team" });
     }
 
     const userIds = joinedUsers.map(joinedUser => joinedUser.userId);

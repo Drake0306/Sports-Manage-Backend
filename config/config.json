@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": "@Mybdayis1997",
+    "username": "motivRoot",
+    "password": "0A44v)(E2h3>CpjFWfS)C%4o8Zuz",
     "database": "development",
-    "host": "172.232.96.200",
+    "host": "motiv-free-tier.cn595bke5fdn.us-east-1.rds.amazonaws.com",
     "dialect": "mysql"
   },
   "test": {
