@@ -1,9 +1,11 @@
 // src/routes/chatRoutes.js
 const express = require('express');
 const router = express.Router();
-const { ChatRoom, Message } = require('../models');
+const { CHATROOMS, MESSAGES, USERS, GROUP_PARTICIPANTS, GROUP_MESSAGES, GROUPS, EVENTS } = require('../models');
 const EncryptionService = require('../services/encryptionService');
+const { where } = require('sequelize');
 const encryptionService = new EncryptionService();
+const { Op } = require('sequelize');
 
 // 1. Create or get chat room
 router.post('/room', async (req, res) => {
@@ -20,7 +22,7 @@ router.post('/room', async (req, res) => {
         const [phone1, phone2] = [userPhone, receiverPhone].sort();
         const roomId = `${phone1}-${phone2}`;
 
-        const [room, created] = await ChatRoom.findOrCreate({
+        const [room, created] = await CHATROOMS.findOrCreate({
             where: { roomId },
             defaults: {
                 participant1Phone: phone1,
@@ -60,7 +62,7 @@ router.post('/message', async (req, res) => {
         }
 
         // Find the room first
-        const room = await ChatRoom.findOne({
+        const room = await CHATROOMS.findOne({
             where: { roomId }
         });
 
@@ -81,7 +83,7 @@ router.post('/message', async (req, res) => {
 
         const encryptedContent = encryptionService.encrypt(text);
         
-        const message = await Message.create({
+        const message = await MESSAGES.create({
             roomId: room.roomId,  // Use the room's roomId
             senderPhone,
             encryptedContent,
@@ -111,7 +113,7 @@ router.post('/message', async (req, res) => {
 router.get('/history/:roomId', async (req, res) => {
     try {
         const { roomId } = req.params;
-        const room = await ChatRoom.findOne({
+        const room = await CHATROOMS.findOne({
             where: { roomId }
         });
         
@@ -122,7 +124,7 @@ router.get('/history/:roomId', async (req, res) => {
             });
         }
 
-        const messages = await Message.findAll({
+        const messages = await MESSAGES.findAll({
             where: { roomId: room.roomId },  // Use the room's roomId
             order: [['createdAt', 'ASC']]
         });
@@ -167,7 +169,7 @@ router.patch('/message/:messageId/status', async (req, res) => {
             });
         }
 
-        const message = await Message.findByPk(messageId);
+        const message = await MESSAGES.findByPk(messageId);
         if (!message) {
             return res.status(404).json({
                 success: false,
@@ -175,7 +177,7 @@ router.patch('/message/:messageId/status', async (req, res) => {
             });
         }
 
-        await message.update({ status });
+        await MESSAGES.update({ status });
 
         res.json({
             success: true,
@@ -227,6 +229,248 @@ router.post('/test-encryption', (req, res) => {
         });
     }
 });
+
+router.get('/users', async (req, res) => {
+    try {
+      const users = await USERS.findAll({
+        attributes: ['id', 'username', 'email', 'userImage', 'contactNumber', 'firstname', 'lastname', 'role'], // Include only necessary fields
+        where: {
+            username: {
+              [Op.ne]: 'admin' // Exclude users with the username 'admin'
+            }
+          }
+      });
+      res.status(200).json(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+// List all groups
+router.get('/groups', async (req, res) => {
+    try {
+        const groups = await GROUPS.findAll({
+            include: [
+                {
+                    model: GROUP_MEMBERSHIPS,
+                    as: 'members',
+                    attributes: ['userPhone', 'role'],
+                }
+            ]
+        });
+        res.status(200).json(groups);
+    } catch (error) {
+        console.error('Error fetching groups:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+// Add multiple participants to a group
+router.post('/group/:roomId/add', async (req, res) => {
+    const { roomId } = req.params;
+    const { userPhones } = req.body; // Expecting an array of phone numbers
+
+    if (!Array.isArray(userPhones) || userPhones.length === 0) {
+        return res.status(400).json({ success: false, message: 'No participants provided' });
+    }
+
+    try {
+        const participantEntries = userPhones.map(userPhone => ({
+            roomId,
+            userPhone
+        }));
+
+        await GROUP_MEMBERSHIPS.bulkCreate(participantEntries);
+        res.status(200).json({ success: true, message: 'Participants added successfully' });
+    } catch (error) {
+        console.error('Error adding participants:', error);
+        res.status(500).json({ success: false, message: 'Failed to add participants' });
+    }
+});
+
+// Remove multiple participants from a group
+router.delete('/group/:roomId/remove', async (req, res) => {
+    const { roomId } = req.params;
+    const { userPhones } = req.body; // Expecting an array of phone numbers
+
+    if (!Array.isArray(userPhones) || userPhones.length === 0) {
+        return res.status(400).json({ success: false, message: 'No participants provided' });
+    }
+
+    try {
+        await GROUP_MEMBERSHIPS.destroy({
+            where: {
+                roomId,
+                userPhone: { [Op.in]: userPhones }
+            }
+        });
+        res.status(200).json({ success: true, message: 'Participants removed successfully' });
+    } catch (error) {
+        console.error('Error removing participants:', error);
+        res.status(500).json({ success: false, message: 'Failed to remove participants' });
+    }
+});
+
+// Create a new group
+router.post('/group', async (req, res) => {
+    const { groupName, createdBy, participants } = req.body;
+
+    try {
+        const group = await GROUPS.create({
+            groupName,
+            createdBy,
+            description: req.body.description || ''
+        });
+
+        // const participantEntries = participants.map(userPhone => ({
+        //     groupId: group.id,
+        //     userPhone
+        // }));
+
+
+        console.log('participantEntries:', participants);
+
+        // await GROUP_MEMBERSHIPS.bulkCreate(participantEntries);
+        res.status(201).json({ success: true, group });
+    } catch (error) {
+        console.error('Error creating group:', error);
+        res.status(500).json({ success: false, message: 'Failed to create group' });
+    }
+});
+
+// Send a message in a group (Live Chat)
+router.post('/group/message', async (req, res) => {
+    const { roomId, senderPhone, text } = req.body;
+
+    try {
+        // Save message to DB
+        const message = await GROUP_MESSAGES.create({
+            groupId: roomId,
+            senderPhone,
+            encryptedContent: text,
+            status: 'sent'
+        });
+
+        // Broadcast to all participants (Live chat using socket.io)
+        const groupMembers = await GROUP_MEMBERSHIPS.findAll({
+            where: { groupId: roomId },
+            attributes: ['userPhone']
+        });
+
+        groupMembers.forEach(member => {
+            // Assuming 'socket' is an instance of socket.io
+            const userSocketId = getUserSocketId(member.userPhone); // Function to map phone number to socket ID
+            if (userSocketId) {
+                socket.to(userSocketId).emit('newMessage', message); // Emit new message to the user
+            }
+        });
+
+        res.status(201).json({ success: true, message });
+    } catch (error) {
+        console.error('Error sending message:', error);
+        res.status(500).json({ success: false, message: 'Failed to send message' });
+    }
+});
+
+
+// EVENTS SECTION HERE
+
+
+// List all events
+router.get('/events', async (req, res) => {
+    try {
+        const events = await EVENTS.findAll();
+        res.status(200).json({ success: true, events });
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch events' });
+    }
+});
+
+
+// Add a new event
+router.post('/add/events', async (req, res) => {
+    try {
+        const { title, startTime, endTime, date, presentAttendees, absentAttendees, missingAttendees, type, coachId, orgId, teamId } = req.body;
+
+        if (!title || !startTime || !endTime || !date || !type || !coachId || !orgId || !teamId) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+
+        const event = await EVENTS.create({
+            title,
+            startTime,
+            endTime,
+            date,
+            presentAttendees,
+            absentAttendees,
+            missingAttendees,
+            type,
+            coachId,
+            orgId,
+            teamId
+        });
+
+        res.status(201).json({ success: true, event });
+    } catch (error) {
+        console.error('Error creating event:', error);
+        res.status(500).json({ success: false, message: 'Failed to create event' });
+    }
+});
+
+// Update an event
+router.put('/update/events/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, startTime, endTime, date, presentAttendees, absentAttendees, missingAttendees, type, coachId, orgId, teamId } = req.body;
+
+        const event = await EVENTS.findByPk(id);
+        if (!event) {
+            return res.status(404).json({ success: false, message: 'Event not found' });
+        }
+
+        await event.update({
+            title,
+            startTime,
+            endTime,
+            date,
+            presentAttendees,
+            absentAttendees,
+            missingAttendees,
+            type,
+            coachId,
+            orgId,
+            teamId
+        });
+
+        res.status(200).json({ success: true, event });
+    } catch (error) {
+        console.error('Error updating event:', error);
+        res.status(500).json({ success: false, message: 'Failed to update event' });
+    }
+});
+
+// Delete an event
+router.delete('/delete/events/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const event = await EVENTS.findByPk(id);
+        if (!event) {
+            return res.status(404).json({ success: false, message: 'Event not found' });
+        }
+
+        await event.destroy();
+        res.status(200).json({ success: true, message: 'Event deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete event' });
+    }
+});
+
 
 
 module.exports = router;

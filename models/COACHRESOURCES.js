@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'COACHRESOURCE',
-      tableName: 'COACHRESOURCE', // Explicitly specify table name if different
+      tableName: 'COACHRESOURCES', // Explicitly specify table name if different
       timestamps: true // Enable timestamps if using createdAt and updatedAt
     }
   );

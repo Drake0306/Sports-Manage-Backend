@@ -15,7 +15,7 @@ if (config.use_env_variable) {
 } else {
   sequelize = new Sequelize(
     process.env.DATABASE_NAME || config.database,
-    process.env.USERNAME || config.username,
+    config.username,
     process.env.PASSWORD || config.password,
     {
       host: process.env.HOST || config.host,

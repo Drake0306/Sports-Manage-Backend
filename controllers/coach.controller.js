@@ -468,12 +468,11 @@ const createResource = async (req, res) => {
       status: 'active', // Default status
       coachId      // Coach ID derived from the JWT
     });
-
     // Return the created resource
     return res.status(201).json({ error: false, resource });
     
   } catch (error) {
-    console.error("Error creating resource:", error);
+    console.log("Error creating resource:", error);
     return res.status(500).json({ error: true, message: "Server error" });
   }
 };
