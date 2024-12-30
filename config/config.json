@@ -1,8 +1,9 @@
+<<<<<<< Updated upstream
 {
   "development": {
     "username": "root",
     "password": "",
-    "database": "development",
+    "database": "motiveteams",
     "host": "localhost",
     "dialect": "mysql"
   },
@@ -14,3 +15,21 @@
     "dialect": "mysql"
   }
 }
+=======
+{
+  "development": {
+    "username": "root",
+    "password": "",
+    "database": "motiveteams",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
+>>>>>>> Stashed changes

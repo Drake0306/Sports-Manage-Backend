@@ -1,7 +1,16 @@
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    class GROUPS extends Model {}
+    class GROUPS extends Model {
+        static associate(models) {
+            // Define the association with an alias (e.g., 'members')
+            GROUPS.hasMany(models.GROUP_MEMBERSHIPS, {
+                foreignKey: 'groupId', 
+                onDelete: 'CASCADE',
+                as: 'members' // alias defined here
+            });
+        }
+    }
 
     GROUPS.init({
         id: {

@@ -1,7 +1,7 @@
 // src/routes/chatRoutes.js
 const express = require('express');
 const router = express.Router();
-const { CHATROOMS, MESSAGES, USERS, GROUP_PARTICIPANTS, GROUP_MESSAGES, GROUPS, EVENTS } = require('../models');
+const { CHATROOMS, MESSAGES, USERS, GROUP_PARTICIPANTS, GROUP_MESSAGES, GROUPS, EVENTS, GROUP_MEMBERSHIPS } = require('../models');
 const EncryptionService = require('../services/encryptionService');
 const { where } = require('sequelize');
 const encryptionService = new EncryptionService();
@@ -248,24 +248,61 @@ router.get('/users', async (req, res) => {
 });
 
 
-// List all groups
-router.get('/groups', async (req, res) => {
+// List specific groups
+router.get('/groups/:groupId', async (req, res) => {
     try {
-        const groups = await GROUPS.findAll({
+        // Fetch group with its members
+        const group = await GROUPS.findOne({
+            where: { id: req.params.groupId },
             include: [
                 {
                     model: GROUP_MEMBERSHIPS,
-                    as: 'members',
-                    attributes: ['userPhone', 'role'],
+                    as: 'members', // Alias defined in GROUPS model
+                    attributes: ['userPhone', 'role'] // Fetch the phone and role of the members
                 }
             ]
         });
-        res.status(200).json(groups);
+
+        // If no group found, return 404
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+
+        // Return the group and its members
+        return res.status(200).json(group);
     } catch (error) {
         console.error('Error fetching groups:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+// List all groups
+router.get('/groups-list', async (req, res) => {
+    try {
+        // Fetch group with its members
+        const group = await GROUPS.findAll({
+            include: [
+                {
+                    model: GROUP_MEMBERSHIPS,
+                    as: 'members', // Alias defined in GROUPS models
+                    attributes: ['userPhone', 'role'] // Fetch the phone and role of the members
+                }
+            ]
+        });
+
+        // If no group found, return 404
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+
+        // Return the group and its members
+        return res.status(200).json(group);
+    } catch (error) {
+        console.error('Error fetching groups:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 
 // Add multiple participants to a group
@@ -279,7 +316,7 @@ router.post('/group/:roomId/add', async (req, res) => {
 
     try {
         const participantEntries = userPhones.map(userPhone => ({
-            roomId,
+            groupId: roomId,
             userPhone
         }));
 
@@ -346,11 +383,14 @@ router.post('/group/message', async (req, res) => {
     const { roomId, senderPhone, text } = req.body;
 
     try {
+
+        const encryptedContent = encryptionService.encrypt(text);
+
         // Save message to DB
         const message = await GROUP_MESSAGES.create({
             groupId: roomId,
             senderPhone,
-            encryptedContent: text,
+            encryptedContent: encryptedContent,
             status: 'sent'
         });
 
@@ -360,14 +400,6 @@ router.post('/group/message', async (req, res) => {
             attributes: ['userPhone']
         });
 
-        groupMembers.forEach(member => {
-            // Assuming 'socket' is an instance of socket.io
-            const userSocketId = getUserSocketId(member.userPhone); // Function to map phone number to socket ID
-            if (userSocketId) {
-                socket.to(userSocketId).emit('newMessage', message); // Emit new message to the user
-            }
-        });
-
         res.status(201).json({ success: true, message });
     } catch (error) {
         console.error('Error sending message:', error);
@@ -375,51 +407,108 @@ router.post('/group/message', async (req, res) => {
     }
 });
 
+router.get('/group-history/:groupId', async (req, res) => {
+    try {
+        const { groupId } = req.params;
+
+        // Fetch group details from the GROUPS table
+        const group = await GROUPS.findOne({
+            where: { id: groupId }
+        });
+
+        if (!group) {
+            return res.status(404).json({
+                success: false,
+                message: 'Group not found'
+            });
+        }
+
+        // Fetch all messages for the group from the GROUP_MESSAGES table
+        const messages = await GROUP_MESSAGES.findAll({
+            where: { groupId },  // Filter by groupId
+            order: [['createdAt', 'ASC']]  // Order by timestamp
+        });
+
+        // Decrypt the message content
+        const decryptedMessages = messages.map(msg => ({
+            id: msg.id,
+            senderPhone: msg.senderPhone,
+            text: encryptionService.decrypt(msg.encryptedContent), // Decrypt the message
+            timestamp: msg.createdAt,
+            status: msg.status
+        }));
+
+        // Get the list of members in the group
+        const groupMembers = await GROUP_MEMBERSHIPS.findAll({
+            where: { groupId },
+        });
+
+        // Fetch user details for each group member based on their userPhone matching with contactNumber
+        const groupMemberDetails = await Promise.all(groupMembers.map(async (member) => {
+            // Fetch all users from USERS where userPhone matches the contactNumber
+            const users = await USERS.findAll({
+                where: { contactNumber: member.userPhone }
+            });
+
+            if (users && users.length > 0) {
+                // Map users to return their details along with the group membership role
+                return users.map(user => ({
+                    userPhone: member.userPhone,
+                    userName: user.username, // Adjust this if you want full name or another field
+                    userFirstName: user.firstname,
+                    userLastName: user.lastname,
+                    userRole: member.role,
+                    userStatus: user.status
+                }));
+            }
+            return []; // Return an empty array if no matching users are found
+        }));
+
+        // Flatten the array of group member details (since each member could have multiple matching users)
+        const validGroupMembers = groupMemberDetails.flat();
+
+        console.log('####',validGroupMembers);
+        // return groupId;
+
+        // Return the group info, along with messages and members
+        res.json({
+            success: true,
+            group: {
+                id: group.id,
+                groupId: group.groupId,
+                groupName: group.groupName,
+                createdBy: group.createdBy,
+                description: group.description,
+                members: validGroupMembers
+            },
+            messages: decryptedMessages
+        });
+    } catch (error) {
+        console.error('Error fetching history for group:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch group chat history'
+        });
+    }
+});
+
+
+
 
 // EVENTS SECTION HERE
 
 
 // List all events
-router.get('/events', async (req, res) => {
-    try {
-        const events = await EVENTS.findAll();
-        res.status(200).json({ success: true, events });
-    } catch (error) {
-        console.error('Error fetching events:', error);
-        res.status(500).json({ success: false, message: 'Failed to fetch events' });
-    }
-});
+// router.get('/events', async (req, res) => {
+//     try {
+//         const events = await EVENTS.findAll();
+//         res.status(200).json({ success: true, events });
+//     } catch (error) {
+//         console.error('Error fetching events:', error);
+//         res.status(500).json({ success: false, message: 'Failed to fetch events' });
+//     }
+// });
 
-
-// Add a new event
-router.post('/add/events', async (req, res) => {
-    try {
-        const { title, startTime, endTime, date, presentAttendees, absentAttendees, missingAttendees, type, coachId, orgId, teamId } = req.body;
-
-        if (!title || !startTime || !endTime || !date || !type || !coachId || !orgId || !teamId) {
-            return res.status(400).json({ success: false, message: 'Missing required fields' });
-        }
-
-        const event = await EVENTS.create({
-            title,
-            startTime,
-            endTime,
-            date,
-            presentAttendees,
-            absentAttendees,
-            missingAttendees,
-            type,
-            coachId,
-            orgId,
-            teamId
-        });
-
-        res.status(201).json({ success: true, event });
-    } catch (error) {
-        console.error('Error creating event:', error);
-        res.status(500).json({ success: false, message: 'Failed to create event' });
-    }
-});
 
 // Update an event
 router.put('/update/events/:id', async (req, res) => {

@@ -16,25 +16,32 @@ module.exports = {
           model: 'GROUPS',
           key: 'id'
         },
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
+        field: 'group_id' // Using the underscored field name as per the model
       },
-      message: {
+      senderPhone: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        field: 'sender_phone' // Using the underscored field name as per the model
       },
-      senderId: { // Assuming you have a sender ID, referencing another table
-        type: Sequelize.INTEGER,
-        allowNull: false
+      encryptedContent: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+        field: 'encrypted_content' // Using the underscored field name as per the model
       },
-      createdAt: {
+      status: {
+        type: Sequelize.ENUM('sent', 'delivered', 'read'),
+        defaultValue: 'sent'
+      },
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.NOW
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.NOW
       }
     });
   },

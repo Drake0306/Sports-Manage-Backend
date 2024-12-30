@@ -58,7 +58,11 @@ app.use('/chat', chatRoutes);
 
 
 
-const PORT = process.env.PORT || 4000;
+<<<<<<< Updated upstream
+const PORT = process.env.PORT || 5060;
+=======
+const PORT = process.env.PORT || 5050;
+>>>>>>> Stashed changes
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

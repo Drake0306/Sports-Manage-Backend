@@ -11,13 +11,9 @@ module.exports = (sequelize) => {
             allowNull: false
         },
         groupId: {
-            type: DataTypes.UUID,
+            type: DataTypes.INTEGER,
             allowNull: false,
             field: 'group_id',
-            references: {
-                model: 'GROUPS',
-                key: 'id',
-            },
         },
         senderPhone: {
             type: DataTypes.STRING,

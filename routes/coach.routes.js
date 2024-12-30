@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth.middleware');
-const { getCoachData, getCoachProfile,updateCoachProfile, createCoachTeam, createResource, featureBug, teamListing, teamUsers,  createAnnouncement, listAnnouncement } = require('../controllers/coach.controller');
+const { getCoachData, getCoachProfile,updateCoachProfile, createCoachTeam, createResource, createEvent, fetchEventResponse, featureBug, teamListing, teamUsers,  createAnnouncement, listAnnouncement } = require('../controllers/coach.controller');
 const multer = require('multer');
 
 const router = express.Router();
@@ -26,6 +26,8 @@ router.post('/feature-bug', authenticateToken, upload.single('featureFile'), fea
 router.get('/fetch/teams',authenticateToken, authorizeRole('coach'),teamListing);
 router.post('/team/users',authenticateToken, authorizeRole('coach'),teamUsers);
 router.post('/resource',authenticateToken, authorizeRole('coach'),createResource);
+router.post('/add/event',authenticateToken, authorizeRole('coach'),createEvent);
+router.post('/event/response',authenticateToken, authorizeRole('coach'),fetchEventResponse);
 
 
 module.exports = router;

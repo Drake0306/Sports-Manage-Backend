@@ -1,16 +1,28 @@
-const { COACHTEAM:CoachTeam, FEATUREREQUEST:FeatureRequest, USERS:User, USERDETAILS:userDetails, COACHANNOUNCEMENT:CoachAnnouncement, 
-  SPORTSLIST:SportsList,STUDENTGUARDIAN: StudentGuardian } = require("../models");
+const {
+  COACHTEAM,
+  FEATUREREQUEST: FeatureRequest,
+  USERS: User,
+  USERDETAILS: userDetails,
+  COACHANNOUNCEMENT: CoachAnnouncement,
+  SPORTSLIST: SportsList,
+  EVENTS,
+  JOINEDTEAMDATA,
+  EVENTRESPONSE,
+  STUDENTGUARDIAN: StudentGuardian,
+} = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
+const { Op } = require("sequelize"); // For Op.in operator
+const moment = require('moment'); // Import moment.js to handle date formatting
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // The directory where the images will be saved
+    cb(null, "uploads/"); // The directory where the images will be saved
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + path.extname(file.originalname)); // Append file extension
   },
 });
@@ -18,7 +30,8 @@ const storage = multer.diskStorage({
 // Create the multer instance
 const upload = multer({ storage });
 
-const getStudentData = async (req, res) => { // This function is not used
+const getStudentData = async (req, res) => {
+  // This function is not used
   try {
     // Retrieve and send coach-specific data
     res.send("Student data");
@@ -32,13 +45,17 @@ const getStudentProfile = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: true, message: "No token provided" });
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
     }
 
     const decodedToken = jwt.verify(token, secret);
-    
+
     if (decodedToken.role !== "student") {
-      return res.status(403).json({ error: true, message: "Access denied, not a student" });
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a student" });
     }
 
     const coach = await User.findOne({
@@ -46,31 +63,33 @@ const getStudentProfile = async (req, res) => {
       include: [
         {
           model: StudentGuardian,
-          required: true
-        }
-      ]
+          required: true,
+        },
+      ],
     });
 
-    console.log('Coach', coach)
-    console.log('decodedToken.id', decodedToken)
-
+    console.log("Coach", coach);
+    console.log("decodedToken.id", decodedToken);
 
     if (!coach) {
-      return res.status(200).json({ error: true, message: "Student not found" });
+      return res
+        .status(200)
+        .json({ error: true, message: "Student not found" });
     }
 
     if (!coach.STUDENTGUARDIAN) {
-      return res.status(200).json({ error: true, message: "Student Guardian not found" });
+      return res
+        .status(200)
+        .json({ error: true, message: "Student Guardian not found" });
     }
-    
+
     const profile = {
       ...coach.dataValues,
       coachTypeId: 0, // Access coachTypeId
-      coachstatus: coach.STUDENTGUARDIAN.status // Access status
+      coachstatus: coach.STUDENTGUARDIAN.status, // Access status
     };
-    
-    res.json({ error: false, profile });
 
+    res.json({ error: false, profile });
   } catch (error) {
     console.error("Error fetching coach profile:", error);
     res.status(500).json({ error: true, message: "Server error" });
@@ -81,24 +100,29 @@ const updateStudentProfile = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: true, message: "No token provided" });
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
     }
 
     const decodedToken = jwt.verify(token, secret);
-    
+
     if (decodedToken.role !== "student") {
-      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a coach" });
     }
 
     const coachId = decodedToken.id;
 
     // Extract the incoming data from the request body
-    const { firstname, lastname, username, email, phoneNumber, coachTypeId } = req.body;
+    const { firstname, lastname, username, email, phoneNumber, coachTypeId } =
+      req.body;
 
     // Handle the uploaded userImage
     let userImage = req.file ? req.file.path : null; // Save the image path if available
 
-    console.log('req.body', req.body)
+    console.log("req.body", req.body);
     // Update the User model
     const updatedUser = await User.update(
       {
@@ -115,7 +139,9 @@ const updateStudentProfile = async (req, res) => {
     );
 
     if (!updatedUser[0]) {
-      return res.status(404).json({ error: true, message: "User not found or no changes made" });
+      return res
+        .status(404)
+        .json({ error: true, message: "User not found or no changes made" });
     }
 
     // Optionally, update additional user details if needed
@@ -148,7 +174,11 @@ const updateStudentProfile = async (req, res) => {
       userImage: updatedStudent.userImage, // Include the updated image path in the response
     };
 
-    res.json({ error: false, message: "Profile updated successfully", profile });
+    res.json({
+      error: false,
+      message: "Profile updated successfully",
+      profile,
+    });
   } catch (error) {
     console.error("Error updating coach profile:", error);
     res.status(500).json({ error: true, message: "Server error" });
@@ -160,12 +190,16 @@ const createStudentTeam = async (req, res) => {
     // Extract token and decode it
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: true, message: "No token provided" });
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
     }
 
     const decodedToken = jwt.verify(token, secret);
     if (decodedToken.role !== "student") {
-      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a coach" });
     }
 
     // Fetch coachId from the decoded token
@@ -189,7 +223,7 @@ const createStudentTeam = async (req, res) => {
     res.json({
       error: false,
       message: "Team created successfully",
-      team: newTeam
+      team: newTeam,
     });
   } catch (error) {
     console.error("Error creating coach team:", error);
@@ -198,20 +232,23 @@ const createStudentTeam = async (req, res) => {
 };
 
 const createAnnouncement = async (req, res) => {
-
   try {
     // Extract token from the authorization header
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: true, message: "No token provided" });
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
     }
 
     // Verify the token and decode it
     const decodedToken = jwt.verify(token, secret);
-    
+
     // Check if the user is a coach
     if (decodedToken.role !== "student") {
-      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a coach" });
     }
 
     // Extract the incoming data from the request body
@@ -220,16 +257,16 @@ const createAnnouncement = async (req, res) => {
 
     // Create the announcement in the database
     const newAnnouncement = await StudentAnnouncement.create({
-      coachId,       // Map coachId from the decoded token
-      announcement,  // Announcement text
-      status         // Status (active/inactive)
+      coachId, // Map coachId from the decoded token
+      announcement, // Announcement text
+      status, // Status (active/inactive)
     });
 
     // Respond with success message and the created announcement
     res.status(201).json({
       error: false,
       message: "Announcement created successfully",
-      announcement: newAnnouncement
+      announcement: newAnnouncement,
     });
   } catch (error) {
     console.error("Error creating announcement:", error);
@@ -242,15 +279,19 @@ const listAnnouncement = async (req, res) => {
     // Extract token from the authorization header
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: true, message: "No token provided" });
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
     }
 
     // Verify the token and decode it
     const decodedToken = jwt.verify(token, secret);
-    
+
     // Check if the user is a coach
     if (decodedToken.role !== "student") {
-      return res.status(403).json({ error: true, message: "Access denied, not a student" });
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a student" });
     }
 
     // Extract coachId from the decoded token
@@ -259,30 +300,30 @@ const listAnnouncement = async (req, res) => {
     // Fetch announcements for the specific coach from the database
     const announcements = await CoachAnnouncement.findAll({
       // where: { coachId }, // Filter announcements by coachId
-      order: [['createdAt', 'DESC']], // Optional: Order by creation date
+      order: [["createdAt", "DESC"]], // Optional: Order by creation date
       include: [
         {
           model: User,
-          as: 'coach', // This should match the alias defined in the association
-          attributes: ['username','role'] // Only fetch the username field
-        }
-      ]
+          as: "coach", // This should match the alias defined in the association
+          attributes: ["username", "role"], // Only fetch the username field
+        },
+      ],
     });
 
     // Map the results to include the coach's username
-    const formattedAnnouncements = announcements.map(announcement => ({
+    const formattedAnnouncements = announcements.map((announcement) => ({
       id: announcement.id,
       coachId: announcement.coachId,
       username: announcement.coach.username,
-      role:announcement.coach.role, // Get the username from the included User
+      role: announcement.coach.role, // Get the username from the included User
       announcement: announcement.announcement,
-      createdAt: announcement.createdAt // Include any other fields as needed
+      createdAt: announcement.createdAt, // Include any other fields as needed
     }));
 
     // Respond with the list of announcements
     res.status(200).json({
       error: false,
-      announcements: formattedAnnouncements // Return the formatted announcements
+      announcements: formattedAnnouncements, // Return the formatted announcements
     });
   } catch (error) {
     console.error("Error fetching announcements:", error);
@@ -295,7 +336,9 @@ const featureBug = async (req, res) => {
     // Extract and verify the token
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: true, message: "No token provided" });
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
     }
     const decodedToken = jwt.verify(token, secret);
 
@@ -314,64 +357,200 @@ const featureBug = async (req, res) => {
       desc: featureDesc,
       file: featureFile,
       priority: featurePriority,
-      status: 'active', // Default status for a new feature request
+      status: "active", // Default status for a new feature request
       requestFor, // Add requestFor to the request
-      userId: decodedToken.id // Map userId from the decoded token
+      userId: decodedToken.id, // Map userId from the decoded token
     });
 
     // Respond with the created feature request data
     res.status(201).json({
       error: false,
       message: "Feature request created successfully",
-      featureRequest: newFeatureRequest
+      featureRequest: newFeatureRequest,
     });
   } catch (error) {
     console.error("Error creating feature request:", error);
     res.status(500).json({ error: true, message: "Server error" });
   }
 };
-
-const teamListing = async (req, res) => {
+const saveEventResponse = async (req, res) => {
+  console.log(req.body);
   try {
+    // Extract token from the authorization header
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: true, message: "No token provided" });
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
     }
 
     const decodedToken = jwt.verify(token, secret);
 
     if (decodedToken.role !== "student") {
-      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a student" });
+    }
+
+    const { eventId, status } = req.body;
+    const studentId = decodedToken.id; // Assuming the studentId is stored in the token
+    const defaultStatus = "pending"; // Default status
+
+    // Check if the record already exists with the same eventId and userId
+    const existingResponse = await EVENTRESPONSE.findOne({
+      where: { eventId, userId: studentId },
+    });
+
+    if (existingResponse) {
+      // If the record exists, update it
+      existingResponse.response = status; // Update response
+      existingResponse.status = defaultStatus; // Update status
+      await existingResponse.save(); // Save the changes
+
+      return res.status(200).json({
+        error: false,
+        message: "Your Response has been updated successfully",
+        data: existingResponse,
+      });
+    } else {
+      // If the record doesn't exist, create a new one
+      const eventResponse = await EVENTRESPONSE.create({
+        eventId,
+        userId: studentId,
+        response: status, // 'yes' or 'no'
+        status: defaultStatus, // Default status
+      });
+
+      return res.status(201).json({
+        error: false,
+        message: "Your Response has been saved successfully",
+        data: eventResponse,
+      });
+    }
+  } catch (error) {
+    console.error("Error creating/updating response:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+
+const teamListing = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+
+    if (decodedToken.role !== "student") {
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a coach" });
     }
 
     // Fetch the teams for the coach based on coachId
     const teams = await StudentTeam.findAll({
       where: { coachId: decodedToken.id }, // Ensure you're using the correct ID from the token
-      attributes: ['id','teamName', 'teamLogo', 'teamCode', 'teamColor'], // Only select the columns you need
+      attributes: ["id", "teamName", "teamLogo", "teamCode", "teamColor"], // Only select the columns you need
       include: [
         {
           model: SportsList, // Join with the SportsList model
-          as: 'sportDetails', // This should match the alias in your association
-          attributes: [ 'sportName', 'sportIcon'], // Select the necessary fields from the SportsList
+          as: "sportDetails", // This should match the alias in your association
+          attributes: ["sportName", "sportIcon"], // Select the necessary fields from the SportsList
         },
       ],
     });
 
     // Check if any teams are found
     if (teams.length === 0) {
-      return res.status(404).json({ error: false, message: "No teams found for this coach" });
+      return res
+        .status(404)
+        .json({ error: false, message: "No teams found for this coach" });
     }
 
     // Respond with the list of teams including sport details
     res.json({ error: false, teams });
-
   } catch (error) {
     console.error("Error fetching teams:", error);
     res.status(500).json({ error: true, message: "Server error" });
   }
 };
 
+const fetchCoachEvents = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1]; // Simplified null check
+    if (!token) {
+      return res
+        .status(401)
+        .json({ error: true, message: "No token provided" });
+    }
+    const decodedToken = jwt.verify(token, secret);
+    if (decodedToken.role !== "student") {
+      return res
+        .status(403)
+        .json({ error: true, message: "Access denied, not a student" });
+    }
+    const { date } = req.body; // Since the request body contains the date
+    if (!date) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Date parameter is required" });
+    }
+    const coachTeams = await JOINEDTEAMDATA.findAll({
+      where: { userId: decodedToken.id },
+      attributes: ["teamId"],
+      include: [
+        {
+          model: COACHTEAM,
+          as: "team",
+          attributes: ["coachId"], // Select only the coachId from the COACHTEAM table
+        },
+      ],
+    });
 
+    const coachIds = coachTeams.map((team) => team.team.coachId); // Extract coachIds
+
+    if (coachIds.length === 0) {
+      return res
+        .status(404)
+        .json({ error: false, message: "No teams found for this user" });
+    }
+    const events = await EVENTS.findAll({
+      where: {
+        coachId: { [Op.in]: coachIds }, // Match coachId from the JOINEDTEAMDATA
+        date: date, // Filter by the provided date
+      },
+      attributes: [
+        "id",
+        "title",
+        "startTime",
+        "endTime",
+        "date",
+        "presentAttendees",
+        "absentAttendees",
+        "missingAttendees",
+        "type",
+        "coachId",
+        "teamId",
+      ],
+    });
+
+    if (events.length === 0) {
+      return res.status(404).json({
+        error: false,
+        message: "No events found for the selected date",
+      });
+    }
+
+    res.json({ error: false, events });
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
 
 module.exports = {
   getStudentData,
@@ -382,5 +561,7 @@ module.exports = {
   featureBug,
   createAnnouncement,
   listAnnouncement,
-  createStudentTeam
+  createStudentTeam,
+  fetchCoachEvents,
+  saveEventResponse,
 };

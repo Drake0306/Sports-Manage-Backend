@@ -1,5 +1,5 @@
-const { COACHTEAM:CoachTeam, FEATUREREQUEST:FeatureRequest, USERS:User, COACHRESOURCE:CoachResource, 
-  USERDETAILS:userDetails, COACHANNOUNCEMENT:CoachAnnouncement, SPORTSLIST:SportsList, JOINEDTEAMDATA:JoinedTeamData } = require("../models");
+const { COACHTEAM:CoachTeam, FEATUREREQUEST:FeatureRequest, USERS:User,EVENTRESPONSE, COACHRESOURCE:CoachResource, 
+  USERDETAILS:userDetails, EVENTS,  COACHANNOUNCEMENT:CoachAnnouncement, SPORTSLIST:SportsList, JOINEDTEAMDATA:JoinedTeamData } = require("../models");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/jwt.config");
 const multer = require('multer');
@@ -27,6 +27,8 @@ const getCoachData = async (req, res) => {
     res.status(500).json({ error: true, message: "Server error" });
   }
 };
+
+
 
 const getCoachProfile = async (req, res) => {
   try {
@@ -212,6 +214,50 @@ const createCoachTeam = async (req, res) => {
   }
 };
 
+const createEvent = async (req, res) => {
+  try {
+    // Extract token and decode it
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    // Fetch coachId from the decoded token
+    const coachId = decodedToken.id; // Assuming your token contains the user ID
+
+    // Extract the incoming data from the request body
+    const { title, startTime, endTime, date, presentAttendees, absentAttendees, missingAttendees, type, orgId, teamId } = req.body;
+    const event = await EVENTS.create({
+      title,
+      startTime,
+      endTime,
+      date,
+      presentAttendees,
+      absentAttendees,
+      missingAttendees,
+      type,
+      coachId,
+      orgId,
+      teamId
+  });
+
+    res.json({
+      error: false,
+      success:true,
+      message: "Team created successfully",
+      event: event
+    });
+  } catch (error) {
+    console.error("Error creating coach team:", error);
+    res.status(500).json({ error: true,success:false,  message: "failed to create event" });
+  }
+};
+
 const createAnnouncement = async (req, res) => {
 
   try {
@@ -386,6 +432,116 @@ const teamListing = async (req, res) => {
   }
 };
 
+const getUserIdsForCoach = async (decodedToken) => {
+  try {
+    // Step 1: Fetch the team IDs where the coachId matches the decodedToken.id
+    const coachTeams = await CoachTeam.findAll({
+      where: { coachId: decodedToken.id },
+      attributes: ['id'], // We only need the team IDs
+    });
+
+    const teamIds = coachTeams.map(team => team.id); // Extract the team IDs into an array
+
+    if (teamIds.length === 0) {
+      console.log('No teams found for this coach');
+      return [];
+    }
+
+    // Step 2: Fetch all userIds from JoinedTeamData where teamId is in the array of teamIds
+    const joinedTeams = await JoinedTeamData.findAll({
+      where: {
+        teamId: teamIds, // Matching teamId from the coach's teams
+      },
+      attributes: ['userId'], // Only fetch the userId
+    });
+
+    // Step 3: Map the result to get the list of userIds and remove duplicates using a Set
+    const userIds = [...new Set(joinedTeams.map(entry => entry.userId))]; // Ensure uniqueness
+
+    return userIds;
+  } catch (error) {
+    console.error('Error fetching userIds:', error);
+    throw error; // Rethrow error to handle it later if needed
+  }
+};
+
+const fetchEventResponse = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: true, message: "No token provided" });
+    }
+
+    const decodedToken = jwt.verify(token, secret);
+    
+    if (decodedToken.role !== "coach") {
+      return res.status(403).json({ error: true, message: "Access denied, not a coach" });
+    }
+
+    const { eventId } = req.body; // Assuming eventId is passed in the request body
+
+    // Step 1: Get all userIds associated with the coach
+    const userIds = await getUserIdsForCoach(decodedToken);
+    console.log('All UserIds for Coach:', userIds);
+
+    // Step 2: Get userIds and their responses for the event
+    const eventResponses = await EVENTRESPONSE.findAll({
+      where: { eventId },
+      attributes: ['userId', 'response'], // Fetch userId and response
+    });
+
+    // Map the event responses to create a dictionary of userId -> response
+    const eventResponsesMap = eventResponses.reduce((acc, { userId, response }) => {
+      acc[userId] = response; // Store response for each userId
+      return acc;
+    }, {});
+
+    console.log('Event Responses Map:', eventResponsesMap);
+
+    // Step 3: Fetch user details (firstName, lastName) from the User table
+    const users = await User.findAll({
+      where: {
+        id: userIds, // Get details only for the users that are in userIds
+      },
+      attributes: ['id', 'firstname', 'lastname', 'username'], // Fetch only required fields
+    });
+
+    // Create a map of userId to user details
+    const usersMap = users.reduce((acc, user) => {
+      acc[user.id] = user; // Store user details with userId as the key
+      return acc;
+    }, {});
+
+
+    // Step 4: Create the result array with all user details (userId, response, firstName, lastName)
+    const result = userIds
+    .filter(userId => userId !== decodedToken.id)
+    .map(userId => {
+      // If the user has responded, use their response; otherwise, assign "not answer"
+      const response = eventResponsesMap[userId] || 'pending';
+      const user = usersMap[userId] || {}; // Get user details (if available)
+      return {
+        userId,
+        response,
+        firstName: user.firstname || 'N/A',  // Provide fallback if not available
+        lastName: user.lastname || 'N/A',    // Provide fallback if not available
+        username:user.username
+      };
+    });
+
+    console.log('Final Result:', result);
+
+    // Step 5: Send the response
+    res.json({ error: false, users: result });
+
+  } catch (error) {
+    console.error("Error fetching team users:", error);
+    res.status(500).json({ error: true, message: "Server error" });
+  }
+};
+
+
+
 
 const teamUsers = async (req, res) => {
   try {
@@ -489,5 +645,7 @@ module.exports = {
   createAnnouncement,
   createResource,
   listAnnouncement,
+  createEvent,
+  fetchEventResponse,
   createCoachTeam
 };

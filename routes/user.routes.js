@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth.middleware');
-const { getUserProfile, updateUserProfile, sportsList, getUserList, changePassword, joinTeam } = require('../controllers/user.controller');
+const { getUserProfile, updateUserProfile, sportsList, getUserList, changePassword, joinTeam, fetchEvent } = require('../controllers/user.controller');
 const {verifyOtp, logout } = require('../controllers/auth.controller');
 
 const router = express.Router();
@@ -14,4 +14,6 @@ router.get('/sports/listing',authenticateToken,sportsList);
 router.get('/getUserList',authenticateToken,getUserList);
 router.post('/change-password',authenticateToken,changePassword);
 router.post('/join/team',authenticateToken,joinTeam);
+router.get('/fetch/events',authenticateToken,fetchEvent);
+
 module.exports = router;

@@ -9,7 +9,7 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true
       },
-      groupId: {
+      group_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -18,23 +18,23 @@ module.exports = {
         },
         onDelete: 'CASCADE'
       },
-      userId: { // assuming you will have a user ID referencing another table
-        type: Sequelize.INTEGER,
+      user_phone: {
+        type: Sequelize.STRING,
         allowNull: false
       },
       role: { // For example, you can store roles like admin, member, etc.
         type: Sequelize.STRING,
         allowNull: true
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.NOW
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('now')
+        defaultValue: Sequelize.NOW
       }
     });
   },
